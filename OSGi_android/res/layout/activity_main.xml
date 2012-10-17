@@ -1,0 +1,54 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/textView_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/hello_world"
+        tools:context=".MainActivity" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_local"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="30dp"
+        android:textOn="@string/local"
+        android:textOff="@string/local" />
+
+    <Button
+        android:id="@+id/button_runtest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_local"
+        android:layout_alignLeft="@+id/textView_text"
+        android:layout_marginBottom="32dp"
+        android:text="@string/button" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_dosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/button_runtest"
+        android:layout_marginRight="18dp"
+        android:textOn="@string/dosgi"
+        android:textOff="@string/dosgi" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_rosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/button_runtest"
+        android:layout_below="@+id/button_runtest"
+        android:textOn="@string/rosgi"
+        android:textOff="@string/rosgi"  />
+
+</RelativeLayout>
