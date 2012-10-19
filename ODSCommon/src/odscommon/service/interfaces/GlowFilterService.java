@@ -1,4 +1,4 @@
-package odscommon.service;
+package odscommon.service.interfaces;
 
 
 

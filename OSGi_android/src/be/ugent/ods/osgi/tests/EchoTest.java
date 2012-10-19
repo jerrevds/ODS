@@ -29,7 +29,7 @@ public class EchoTest implements TestInterface {
 
 
 	public void runTest(final String source, final OSGIMainActivity activity) {
-//new thread to avoid stalls of android
+		//new thread to avoid stalls of android
 		Thread thread = new Thread() {
 
 			public void run() {
