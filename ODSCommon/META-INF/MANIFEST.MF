@@ -1,0 +1,6 @@
+Export-Package: odscommon.service
+Manifest-Version: 1.0
+Created-By: ODS
+Bundle-Version: 0.1
+Bundle-Name: ODSCommon
+Bundle-SymbolicName: ODSCommon
