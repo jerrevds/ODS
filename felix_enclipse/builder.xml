@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="felix.makejar" default="makejar" basedir=".">
+  <target name ="makejar" description="Create a jar for the felix bundles">
+    <jar jarfile="bundle/remote.jar" includes="*.class" basedir="."/>
+  </target>
+</project>
