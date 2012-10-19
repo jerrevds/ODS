@@ -4,20 +4,14 @@ import java.io.File;
 import java.util.Hashtable;
 import java.util.Properties;
 
-import odscommon.service.GlowFilterService;
-import odscommon.service.Test;
+import odscommon.service.impl.EchoServiceImpl;
+import odscommon.service.interfaces.GlowFilterService;
+import odscommon.service.interfaces.EchoService;
 
 import org.apache.felix.framework.Felix;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 
-import be.ugent.ods.osgi.impl.TestImpl;
-/*
-import ch.ethz.iks.r_osgi.RemoteOSGiException;
-import ch.ethz.iks.r_osgi.RemoteOSGiService;
-import ch.ethz.iks.r_osgi.RemoteServiceReference;
-import ch.ethz.iks.r_osgi.URI;
-*/
 
 
 public class FelixManager {
@@ -61,13 +55,13 @@ public class FelixManager {
 			felix.start();
 
 	        // Create a property lookup service implementation.
-	        Test test = new TestImpl();
+	        EchoService test = new EchoServiceImpl();
 	        // Register the property lookup service and save
 	        // the service registration.
 	        Hashtable<String, String> props = new Hashtable<String, String>();
 	        props.put("type", "testlocal");
 	       felix.getBundleContext().registerService(
-	        		Test.class.getName(), test, props);
+	        		EchoService.class.getName(), test, props);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

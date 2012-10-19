@@ -8,5 +8,9 @@
     <string name="dosgi">dosgi</string>
     <string name="button">Button</string>
     <string name="rosgi">rosgi</string>
+    <string name="run">run</string>
+    <string name="image">image</string>
+    <string name="echo">echo</string>
+    <string name="video">video</string>
 
 </resources>

@@ -3,52 +3,79 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/textView_text"
+    <LinearLayout
+        android:id="@+id/linearlayout_pushtestview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="@string/hello_world"
-        tools:context=".MainActivity" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/toggleButton_rosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:enabled="false"
+        android:textOff="@string/rosgi"
+        android:textOn="@string/rosgi" />
 
     <ToggleButton
         android:id="@+id/toggleButton_local"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="30dp"
-        android:textOn="@string/local"
-        android:textOff="@string/local" />
+        android:layout_centerHorizontal="true"
+        android:textOff="@string/local"
+        android:textOn="@string/local" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_dosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:enabled="false"
+        android:textOff="@string/dosgi"
+        android:textOn="@string/dosgi" />
 
     <Button
         android:id="@+id/button_runtest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/toggleButton_local"
-        android:layout_alignLeft="@+id/textView_text"
-        android:layout_marginBottom="32dp"
-        android:text="@string/button" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="56dp"
+        android:text="@string/run" />
 
     <ToggleButton
-        android:id="@+id/toggleButton_dosgi"
+        android:id="@+id/toggleButton_echo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_rosgi"
+        android:layout_alignParentLeft="true"
+        android:textOn="@string/echo"
+        android:textOff="@string/echo" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toggleButton_echo"
+        android:layout_alignRight="@+id/toggleButton_local"
+        android:textOn="@string/image" 
+        android:textOff="@string/image"
+        android:enabled="false" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_dosgi"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/button_runtest"
-        android:layout_marginRight="18dp"
-        android:textOn="@string/dosgi"
-        android:textOff="@string/dosgi" />
-
-    <ToggleButton
-        android:id="@+id/toggleButton_rosgi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/button_runtest"
-        android:layout_below="@+id/button_runtest"
-        android:textOn="@string/rosgi"
-        android:textOff="@string/rosgi"  />
+        android:textOn="@string/video"
+        android:textOff="@string/video"
+        android:enabled="false" />
 
 </RelativeLayout>
