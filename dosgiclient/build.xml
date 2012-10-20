@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dosgiclient.jar" default="jar" basedir=".">
+  
+  <target name ="jar" description="Create a jar for the felix bundles">
+
+  		<delete includeemptydirs="true">
+   			 <fileset dir="../OSGi_android/res/raw" includes="dosgiclient.jar"/>
+  		</delete>
+
+      <jar jarfile="../OSGi_android/res/raw/dosgiclient.jar" basedir="bin" manifest="META-INF/MANIFEST.MF">
+    	 
+       <fileset dir="." includes="*.class"/>  
+        <fileset dir=".">
+    		<include name="OSGI-INF/*/*"/>
+  		</fileset>
+      </jar>
+  </target>
+</project>

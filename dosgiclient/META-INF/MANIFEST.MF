@@ -1,0 +1,6 @@
+Import-Package: odscommon.service.impl, odscommon.service.interfaces, org.osgi.framework
+Manifest-Version: 1.0
+Created-By: ODS
+Bundle-Version: 0.1
+Bundle-Name: dosgiclient
+Bundle-SymbolicName: dosgiclient

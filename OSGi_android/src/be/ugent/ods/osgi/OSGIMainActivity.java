@@ -19,7 +19,7 @@ public class OSGIMainActivity extends Activity {
 	private String source = "local";
 	private Button testTestButton;
 	private FelixManager felixManager;
-	private ProgressDialog mProgressDialog;
+//	private ProgressDialog mProgressDialog;
 	private Handler UIHandler;
 
 	private TestInterface test;
@@ -29,7 +29,7 @@ public class OSGIMainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		String packageRootPath = getFilesDir().getAbsolutePath();
-		 felixManager = new FelixManager(packageRootPath);
+		 felixManager = new FelixManager(packageRootPath, this);
 		setButtons();
 		setTestbuttons();
 		UIHandler = new Handler();
@@ -44,9 +44,9 @@ public class OSGIMainActivity extends Activity {
 		testTestButton.setOnClickListener(new OnClickListener() {
 			
 			public void onClick(View v) {
-				mProgressDialog = new ProgressDialog(OSGIMainActivity.this);
-				mProgressDialog.setTitle("working");
-				mProgressDialog.show();
+			//	mProgressDialog = new ProgressDialog(OSGIMainActivity.this);
+			//	mProgressDialog.setTitle("working");
+			//	mProgressDialog.show();
 				test.runTest(source, OSGIMainActivity.this);
 				
 			}
@@ -155,7 +155,7 @@ public class OSGIMainActivity extends Activity {
 				LinearLayout layout = (LinearLayout)findViewById(R.id.linearlayout_pushtestview);
 				layout.removeAllViews();
 				layout.addView(view);
-				mProgressDialog.dismiss();
+			//	mProgressDialog.dismiss();
 			}
 		});
 	}
@@ -168,7 +168,7 @@ public class OSGIMainActivity extends Activity {
 			UIHandler.post(new Runnable() {
 			
 			public void run() {
-				mProgressDialog.dismiss();
+			//	mProgressDialog.dismiss();
 			}
 		});
 	}

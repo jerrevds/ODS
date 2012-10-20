@@ -18,9 +18,10 @@ public class Activator  implements BundleActivator {
 	  
 	    props.put("service.exported.interfaces", "*");
         props.put("service.exported.configs", "org.apache.cxf.ws");
-        props.put("org.apache.cxf.ws.address", "http://localhost:9090/dosgi");
+        props.put("type", "testdosgi");
+       // props.put("org.apache.cxf.ws.address", "http://localhost:9090/dosgi");
 	    sr = context.registerService(EchoService.class.getName(), 
-	        new EchoServiceImpl(), props);
+	        new EchoServiceImpl("dosgi"), props);
 	  }
 
 	  public void stop(BundleContext context) throws Exception {

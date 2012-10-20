@@ -36,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:enabled="false"
         android:textOff="@string/dosgi"
         android:textOn="@string/dosgi" />
 
