@@ -13,14 +13,14 @@ public class Activator implements BundleActivator {
 	private ServiceTracker st;
 
 	public void start(final BundleContext bc) throws Exception {
-		System.out.println("start-------------------------------------------");
+		System.err.println("start-------------------------------------------");
 		st = new ServiceTracker(bc, EchoService.class.getName(), null) {
 			@Override
 			public Object addingService(ServiceReference reference) {
 				Object svc = bc.getService(reference);
-				System.out.println("foundref-------------------------------------------");
+				System.err.println("foundref-------------------------------------------");
 				if (svc instanceof EchoService) {
-					System.out.println("and add to-------------------------------------------");
+					System.err.println("and add to-------------------------------------------");
 					Hashtable<String, String> props = new Hashtable<String, String>();
 					props.put("type", "testdosgi");
 					bc.registerService(EchoService.class.getName(), svc, props);
