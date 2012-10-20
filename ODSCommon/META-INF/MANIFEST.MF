@@ -1,4 +1,4 @@
-Export-Package: odscommon.service
+Export-Package: odscommon.service.impl, odscommon.service.interfaces
 Manifest-Version: 1.0
 Created-By: ODS
 Bundle-Version: 0.1

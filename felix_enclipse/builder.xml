@@ -3,18 +3,29 @@
   
   <target name ="makejar" description="Create a jar for the felix bundles">
        <delete includeemptydirs="true">
-    <fileset dir="felix-cache" includes="**/*"/>
-  </delete>
-    <jar jarfile="bundle/remote.jar" basedir="./classes">
-     <manifest>
+   			 <fileset dir="felix-cache" includes="**/*"/>
+  		</delete>
+  		<delete includeemptydirs="true">
+   			 <fileset dir="bundle" includes="remote.jar"/>
+  		</delete>
+  		<delete includeemptydirs="true">
+   			 <fileset dir="bundle" includes="odscommon.jar"/>
+  		</delete>
+    	<jar jarfile="bundle/remote.jar" basedir="./classes">
+    	 <manifest>
                 <attribute name=" Manifest-Version" value="1.0"/>
                  <attribute name="Created-By" value="ODS"/>
                  <attribute name="Bundle-SymbolicName" value="ODS"/>
                  <attribute name="Bundle-Name" value="ODS"/>
                  <attribute name="Bundle-Version" value="0.1"/>
                  <attribute name="Bundle-Activator" value="server.Activator"/>
-                 <attribute name="Import-Package" value="odscommon.service, org.osgi.framework"/>
-      </manifest>
+                 <attribute name="Import-Package" value="odscommon.service.impl, odscommon.service.interfaces, org.osgi.framework"/>
+     	 </manifest>
+       <fileset dir="." includes="*.class"/>  
+       
+      </jar>
+      <jar jarfile="bundle/odscommon.jar" basedir="../ODSCommon/bin" manifest="../ODSCommon/META-INF/MANIFEST.MF">
+    	 
        <fileset dir="." includes="*.class"/>  
        
       </jar>
