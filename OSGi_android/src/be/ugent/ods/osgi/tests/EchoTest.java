@@ -39,7 +39,6 @@ public class EchoTest implements TestInterface {
 				try {
 					refs = felixManager.getFelix().getBundleContext().getServiceReferences(
 							EchoService.class.getName(), "(type=test"+source+")");
-					Object o = felixManager.getFelix().getBundleContext();
 					EchoService test = (EchoService) felixManager.getFelix().getBundleContext().getService(refs[0]);
 
 					 name = test.echoLocation("myName");
