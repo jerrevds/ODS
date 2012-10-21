@@ -20,20 +20,23 @@ public class Activator implements BundleActivator {
 				Object svc = bc.getService(reference);
 				System.err.println("foundref-------------------------------------------");
 				if (svc instanceof EchoService) {
-					System.err.println("and add to-------------------------------------------");
-					Hashtable<String, String> props = new Hashtable<String, String>();
-					props.put("type", "testdosgi");
-					bc.registerService(EchoService.class.getName(), svc, props);
+					printServiceInfo((EchoService) svc);
 				}
 
 				return super.addingService(reference);
 			}
+
+			
 		};
 		st.open();
 	}
+	
 
 	public void stop(BundleContext bc) throws Exception {
 		st.close();
 	}
-
+	private void printServiceInfo(EchoService svc) {
+		System.out.println(svc.echoLocation("testertst"));
+		
+	}
 }

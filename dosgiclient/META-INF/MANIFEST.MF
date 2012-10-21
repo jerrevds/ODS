@@ -1,6 +1,7 @@
-Import-Package: odscommon.service.impl, odscommon.service.interfaces, org.osgi.framework
+Import-Package: odscommon.service.impl, odscommon.service.interfaces, org.osgi.framework,org.osgi.util.tracker
 Manifest-Version: 1.0
 Created-By: ODS
 Bundle-Version: 0.1
 Bundle-Name: dosgiclient
 Bundle-SymbolicName: dosgiclient
+Bundle-Activator: ods.client.Activator
