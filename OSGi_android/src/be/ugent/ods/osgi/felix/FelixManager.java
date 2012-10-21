@@ -11,6 +11,7 @@ import odscommon.service.interfaces.EchoService;
 
 import org.apache.felix.framework.Felix;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -76,10 +77,13 @@ public class FelixManager {
 
 		//instal dosgi bundle (single bundle crasht android)
 		//don't dare to mess with the order!!!
+		installBundle(R.raw.gogoruntime, context,97);
+//		installBundle(R.raw.gogoshell, context,96);
+		installBundle(R.raw.orggogocommand, context,98);
 		installBundle(R.raw.bundlerepo, context,1);
 		installBundle(R.raw.compendium, context,56);
-		installBundle(R.raw.dosgi, context,99);
-		/*installBundle(R.raw.dosgi15, context,15);
+		//installBundle(R.raw.dosgi, context,99);
+		installBundle(R.raw.dosgi15, context,15);
 		installBundle(R.raw.dosgi14, context,16);
 		installBundle(R.raw.dosgi16, context,17);
 		installBundle(R.raw.dosgi17, context,18);
@@ -123,7 +127,7 @@ public class FelixManager {
 		installBundle(R.raw.dosgi11, context,12);	
 		installBundle(R.raw.dosgi36, context,38);
 		installBundle(R.raw.dosgi12, context,13);
-		installBundle(R.raw.dosgi13, context,14);*/
+		installBundle(R.raw.dosgi13, context,14);
 		//discovery bundle (not yet needed)
 		//installBundle(R.raw.dosgi3, context,4);
 	//	installBundle(R.raw.dosgi8, context,9);
@@ -194,9 +198,11 @@ public class FelixManager {
 	public void installBundle(int id, Context context, int loadnr){
 		InputStream is = context.getResources().openRawResource(id);
 		try {
+			BundleContext bc = felix.getBundleContext();
 			Bundle b = felix.getBundleContext().installBundle(loadnr+".jar", is);
-			b.start();
+			Log.d("OSGi",b.getSymbolicName());
 			Log.d("OSGi","bundle started" + loadnr);
+			b.start();
 		} catch (Exception e) {
 			Log.e("OSGi","Error starting bundle " + loadnr + " " + e.toString());
 			e.printStackTrace();

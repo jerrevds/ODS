@@ -6,7 +6,7 @@
   <property name="osgi.remote.interfaces">*</property>
   <property name="osgi.remote.configuration.type">pojo</property>
   <property name="osgi.remote.configuration.pojo.address">
-   http://192.168.1.11:9000/odscommon/service/interfaces/EchoService
+   http://192.168.0.121:9000/odscommon/service/interfaces/EchoService
   </property>
  </service-description>
 </service-descriptions>
