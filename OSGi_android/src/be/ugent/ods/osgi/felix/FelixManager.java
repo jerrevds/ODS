@@ -117,8 +117,9 @@ public class FelixManager {
 		installBundle(R.raw.dosgi49, context, 52);
 		installBundle(R.raw.dosgi50, context, 53);
 		installBundle(R.raw.dosgi24, context, 24);
-		installBundle(R.raw.dosgi33, context, 35);
+
 		installBundle(R.raw.dosgi34, context, 36);
+		installBundle(R.raw.dosgi35, context, 35);
 		installBundle(R.raw.dosgi31, context, 32);
 		installBundle(R.raw.dosgi32, context, 33);
 		installBundle(R.raw.dosgi33, context, 34);
