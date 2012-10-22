@@ -67,6 +67,8 @@ public class FelixProperties extends Properties
         "javax.sound.sampled; " + 
         "javax.sound.sampled.spi; " + 
         "javax.sql; " + 
+        "javax.xml; " + 
+        "javax.xml.datatype; " + 
         "javax.xml.transform; " + 
         "javax.xml.transform.sax; " + 
         "javax.xml.transform.dom; " + 
@@ -93,6 +95,9 @@ public class FelixProperties extends Properties
         "org.bluez; " + 
         "org.json; " + 
         "org.w3c.dom; " + 
+        
+        "org.w3c.dom.ls; " + 
+        
         "org.xml.sax; " + 
         "org.xml.sax.ext; " + 
         "org.xml.sax.helpers; " +
