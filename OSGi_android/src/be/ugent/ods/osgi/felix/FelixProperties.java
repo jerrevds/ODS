@@ -67,6 +67,13 @@ public class FelixProperties extends Properties
         "javax.sound.sampled; " + 
         "javax.sound.sampled.spi; " + 
         "javax.sql; " + 
+        "javax.xml.datatype; " + 
+        "javax.xml.namespace; " + 
+        "javax.xml.transform; " + 
+        "javax.xml.transform.sax; " + 
+        "javax.xml.transform.dom; " + 
+        "javax.xml.transform.stream; " + 
+        "javax.xml.validation; " +
         "javax.xml.parsers; " + 
         //JUNIT
         "junit.extensions; " + 
