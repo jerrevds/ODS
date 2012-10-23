@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="rosgiclient.jar" default="jar" basedir=".">
+  
+  <target name ="jar" description="Create a jar for the felix bundles">
+
+  		<delete includeemptydirs="true">
+   			 <fileset dir="../OSGi_android/res/raw" includes="rosgiclient.jar"/>
+  		</delete>
+
+      <jar jarfile="../OSGi_android/res/raw/rosgiclient.jar" basedir="bin" manifest="META-INF/MANIFEST.MF">
+    	 
+       <fileset dir="." includes="*.class"/>  
+      
+      </jar>
+  </target>
+</project>

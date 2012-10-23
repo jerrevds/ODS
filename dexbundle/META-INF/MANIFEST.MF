@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DexService
+Bundle-SymbolicName: DexService
+Bundle-Version: 1.0.0
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: org.osgi.framework;version="1.3.0",
+ org.osgi.service.log; version="1.3",
+ org.osgi.util.tracker;version="1.3.1"
+Bundle-ClassPath: .,
+ lib/dx.jar
+Export-Package: dexservicebundle
+Service-Component: OSGI-INF/DexService.xml

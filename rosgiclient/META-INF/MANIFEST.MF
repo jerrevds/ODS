@@ -1,0 +1,7 @@
+Import-Package: odscommon.service.impl, odscommon.service.interfaces, org.osgi.framework,org.osgi.util.tracker,ch.ethz.iks.r_osgi
+Manifest-Version: 1.0
+Created-By: ODS
+Bundle-Version: 0.1
+Bundle-Name: rosgiclient
+Bundle-SymbolicName: rosgiclient
+Bundle-Activator: ods.client.Activator

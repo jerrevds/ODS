@@ -26,6 +26,7 @@ import ch.ethz.iks.r_osgi.URI;
 import be.ugent.ods.osgi.R;
 
 import android.content.Context;
+import android.os.StrictMode;
 import android.util.Log;
 
 public class FelixManager {
@@ -157,46 +158,20 @@ public class FelixManager {
 		 * installBundle(R.raw.dosgiclient, context, 57); startBundles();
 		 * ServiceReference[] refs = felix.getRegisteredServices();
 		 */
+		//allow internet connection on subthread
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+		StrictMode.setThreadPolicy(policy); 
+		installBundle(R.raw.odscommon, context, 58);
 		installBundle(R.raw.apachelog, context, 200);
 		installBundle(R.raw.eventadmin, context, 201);
-		installBundle(R.raw.rosgi, context, 202);
+		installBundle(R.raw.androidrosgi, context, 202);
+		installBundle(R.raw.rosgiclient, context, 203);
+		installBundle(R.raw.asm, context, 204);
 		startBundles();
 
 		///moet naar aparte bundle om op basis van zelfde jar en classload te werken
-		ServiceReference<?> serviceRef = felix.getBundleContext().getServiceReference(
-				RemoteOSGiService.class.getName());
-		ServiceReference[] refs = felix.getRegisteredServices();
-		if (serviceRef == null) {
-			Log.e("ROSGi", "rosgi service not found");
-		} else {
-			final RemoteOSGiServiceImpl remote = (RemoteOSGiServiceImpl) felix
-					.getBundleContext().getService(serviceRef);
-			try {
-				remote.connect(new URI("r-osgi://localhost:9278"));
-			} catch (RemoteOSGiException e) {
-				Log.e("ROSGi", "rosgie" + e.toString());
-			} catch (IOException e) {
-				Log.e("ROSGi", "io" + e.toString());
-			}
-
-			final RemoteServiceReference[] references = remote
-					.getRemoteServiceReferences(new URI(
-							"r-osgi://http://192.168.0.128:9278"),
-							EchoService.class.getName(), null);
-			if (references == null) {
-				Log.e("ROSGi", "service not found");
-			} else {
-				// eigen toevoeging final GlowFilterService
-				EchoService rosgitest = (EchoService) remote
-						.getRemoteService(references[0]);
-				Hashtable<String, String> props = new Hashtable<String, String>();
-				props.put("type", "testrsosgi");
-				felix.getBundleContext().registerService(
-						EchoService.class.getName(), rosgitest, props);
-				felix.getBundleContext().registerService(
-						EchoService.class.getName(), rosgitest, props);
-			}
-		}
+		
 
 	}
 
