@@ -1,0 +1,79 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/linearlayout_pushtestview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/toggleButton_rosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:textOff="@string/rosgi"
+        android:textOn="@string/rosgi" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_local"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textOff="@string/local"
+        android:textOn="@string/local" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_dosgi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textOff="@string/dosgi"
+        android:textOn="@string/dosgi" />
+
+    <Button
+        android:id="@+id/button_runtest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_local"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="56dp"
+        android:text="@string/run" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_echo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_rosgi"
+        android:layout_alignParentLeft="true"
+        android:textOn="@string/echo"
+        android:textOff="@string/echo" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/toggleButton_echo"
+        android:layout_alignRight="@+id/toggleButton_local"
+        android:textOn="@string/image" 
+        android:textOff="@string/image"
+        android:enabled="false" />
+
+    <ToggleButton
+        android:id="@+id/toggleButton_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toggleButton_dosgi"
+        android:layout_alignParentRight="true"
+        android:textOn="@string/video"
+        android:textOff="@string/video"
+        android:enabled="false" />
+
+</RelativeLayout>

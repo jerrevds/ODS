@@ -1,0 +1,8 @@
+Export-Package: be.ugent.ods.testapplications.service.impl
+Import-Package: org.osgi.framework, be.ugent.ods.testapplications.service.interfaces
+Manifest-Version: 1.0
+Created-By: ODS
+Bundle-Version: 0.1
+Bundle-Name: serversideimplementations
+Bundle-SymbolicName: bundle_serversideimplementations
+Bundle-Activator: be.ugent.ods.testapplications.service.Activator

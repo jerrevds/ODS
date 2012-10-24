@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="androidclient" default="makejar" basedir=".">
+  <property name="bundleplacedir" value="dex" />
+  <property name="libsplacedir" value="../androidclient/libs" />
+  
+  
+  <target name ="makejar" depends="clean" description="">
+  
+      <!-- END OF COMMON PART (BOTH SERVER AND CLIENT) -->
+  
+      <!-- MAKE BUNDLE DIR -->
+      <mkdir dir="${bundleplacedir}"/>
+  		
+  		<!-- ADD REQUIRED BUNDLES -->
+  		
+  		<!-- some bundles... -->
+  		<!--<copy file="../libraries/libs/bundlerepo.jar" tofile="${bundleplacedir}/bundlerepo.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.command-0.12.0.jar" tofile="${bundleplacedir}/gogocommand.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.runtime-0.10.0.jar" tofile="${bundleplacedir}/gogoruntim.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.shell-0.10.0.jar" tofile="${bundleplacedir}/gogoshell.jar"/>-->
+  		
+  		<!-- dosgi -->
+  		<!--
+  		<copy file="../libraries/libs/dosgi.jar" tofile="${bundleplacedir}/dosgi.jar"/>
+  		<copy file="../libraries/libs/dosgiclient.jar" tofile="${bundleplacedir}/dosgiclient.jar"/>
+  		<copy file="../libraries/libs/compendium.jar" tofile="${bundleplacedir}/compendium.jar"/>
+  		-->
+  		
+  		<!-- eclipse distributed -->
+  		<!--
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.identity_3.1.100.v20110531-2218.jar" tofile="${bundleplacedir}/org.eclipse.ecf.identity_3.1.100.v20110531-2218.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.osgi.services.remoteserviceadmin.proxy_1.0.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.ecf.osgi.services.remoteserviceadmin.proxy_1.0.0.v20120610-1946.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.osgi.services.remoteserviceadmin_2.1.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.ecf.osgi.services.remoteserviceadmin_2.1.0.v20120610-1946.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.equinox.common_3.6.0.v20110523.jar" tofile="${bundleplacedir}/org.eclipse.equinox.common_3.6.0.v20110523.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.equinox.registry_3.5.101.R37x_v20110810-1611.jar" tofile="${bundleplacedir}/org.eclipse.equinox.registry_3.5.101.R37x_v20110810-1611.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.osgi.services.remoteserviceadmin_1.5.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.osgi.services.remoteserviceadmin_1.5.0.v20120610-1946.jar"/>
+  		-->
+  		
+  		<!-- ADD THE serversideimplementations BUNDLE -->
+  		<copy file="../_bundles/bundle_serversideimplementations/build/serversideimplementations.jar" tofile="${bundleplacedir}/serversideimplementations.jar"/>
+  		
+  		<!-- ADD THE rosgi BUNDLE van tim -->
+  		<copy file="../_bundles/bundle_rosgi_tim/dist/rosgi_tim.jar" tofile="${bundleplacedir}/rosgitim.jar"/>
+  		<!-- And it's dependencies -->
+  		<!-- <copy file="../libraries/libs/rosgi-tim-dependencies/kxml2-2.2.2.jar" tofile="${bundleplacedir}/kxml.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/org.apache.felix.shell-1.2.0.jar" tofile="${bundleplacedir}/felixshell.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.cmpn-4.3.0.jar" tofile="${bundleplacedir}/osgicmpn.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.core-4.3.0.jar" tofile="${bundleplacedir}/osgicore.jar"/> -->
+  		
+  		
+  		
+  		<!-- END OF COMMON PART -->
+  		
+  		
+  		<!-- COPY INTERFACES -->
+  		<copy file="../_bundles/lib_serversideinterfaces/build/serversideinterfaces.jar" tofile="${libsplacedir}/serversideinterfaces.jar"/>
+  		<copy file="../server/bin/felix.jar" tofile="${libsplacedir}/felix.jar"/>
+  		<copy file="_libs/android-support-v4.jar" tofile="${libsplacedir}/android-support-v4.jar"/>
+  		<copy file="../libraries/libs/compendium/compendium.jar" tofile="${libsplacedir}/compendium.jar"/>
+  		<!-- <copy file="../libraries/libs/rosgi-tim-dependencies/osgi.cmpn-4.3.0.jar" tofile="${libsplacedir}/osgi.cmpn-4.3.0.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.core-4.3.0.jar" tofile="${libsplacedir}/osgi.core-4.3.0.jar"/>-->
+  		
+  		
+  		
+  		<echo message="Next step = dexifying." />
+  		<echo message="IF IT RETURNS 1 MAKE SURE dx AND aapt ARE IN YOUR CLASSPATH" />
+  		
+  		<!-- DEXIFY -->
+  		<exec executable="cmd" failonerror="true">
+          <arg value="/c" />
+          <arg value="buildtool\dexify.bat" />
+      </exec>
+      
+  </target>
+  
+  <!--
+  
+     === On clean ===
+  
+  -->
+  
+  <target name="clean" description="Remove builded files...">
+  
+      <!-- AVOID CRASHING -->
+      <mkdir dir="felix-cache"/>
+      <mkdir dir="${bundleplacedir}"/>
+      <mkdir dir="${libsplacedir}"/>
+  
+      <!-- DELETE ALL FILES -->
+      <delete includeemptydirs="true">
+   			 <fileset dir="felix-cache" includes="**"/>
+  		</delete>
+  		<delete includeemptydirs="true">
+   			 <fileset dir="${bundleplacedir}" includes="**"/>
+  		</delete>
+  		<delete includeemptydirs="true">
+   			 <fileset dir="${libsplacedir}" includes="**"/>
+  		</delete>
+  		
+  </target>
+</project>

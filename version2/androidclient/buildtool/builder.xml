@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="androidclient" default="makejar" basedir=".">
+  <property name="bundleplacedir" value="res/raw" />
+  
+  <target name ="makejar" depends="clean" description="">
+  
+      <!-- MAKE BUNDLE DIR -->
+      <mkdir dir="${bundleplacedir}"/>
+      
+      <copy todir="${bundleplacedir}">
+        <fileset dir="../androiddexify/dex"/>
+      </copy>
+            
+  </target>
+  
+  <!--
+  
+     === On clean ===
+  
+  -->
+  
+  <target name="clean" description="Remove builded files...">
+  
+      <!-- AVOID CRASHING -->
+      <mkdir dir="${bundleplacedir}"/>
+  
+      <!-- DELETE ALL FILES -->
+  		<delete includeemptydirs="true">
+   			 <fileset dir="${bundleplacedir}" includes="**"/>
+  		</delete>
+  		
+  </target>
+</project>

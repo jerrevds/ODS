@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="felix.makejar" default="makejar" basedir=".">
+  <property name="bundleplacedir" value="bundle" />
+  
+  <target name ="makejar" depends="clean" description="Create a jar for the felix bundles">
+  
+      <!-- END OF COMMON PART (BOTH SERVER AND CLIENT) -->
+  
+      <!-- MAKE BUNDLE DIR -->
+      <mkdir dir="${bundleplacedir}"/>
+  		
+  		<!-- ADD REQUIRED BUNDLES -->
+  		
+  		<!-- some bundles... -->
+  		<copy file="../libraries/libs/bundlerepo.jar" tofile="${bundleplacedir}/bundlerepo.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.command-0.12.0.jar" tofile="${bundleplacedir}/org.apache.felix.gogo.command-0.12.0.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.runtime-0.10.0.jar" tofile="${bundleplacedir}/org.apache.felix.gogo.runtime-0.10.0.jar"/>
+  		<copy file="../libraries/libs/org.apache.felix.gogo.shell-0.10.0.jar" tofile="${bundleplacedir}/org.apache.felix.gogo.shell-0.10.0.jar"/>
+  		
+  		<!-- dosgi -->
+  		<!--
+  		<copy file="../libraries/libs/dosgi.jar" tofile="${bundleplacedir}/dosgi.jar"/>
+  		<copy file="../libraries/libs/dosgiclient.jar" tofile="${bundleplacedir}/dosgiclient.jar"/>
+  		<copy file="../libraries/libs/compendium.jar" tofile="${bundleplacedir}/compendium.jar"/>
+  		-->
+  		
+  		<!-- eclipse distributed -->
+  		<!--
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.identity_3.1.100.v20110531-2218.jar" tofile="${bundleplacedir}/org.eclipse.ecf.identity_3.1.100.v20110531-2218.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.osgi.services.remoteserviceadmin.proxy_1.0.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.ecf.osgi.services.remoteserviceadmin.proxy_1.0.0.v20120610-1946.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.ecf.osgi.services.remoteserviceadmin_2.1.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.ecf.osgi.services.remoteserviceadmin_2.1.0.v20120610-1946.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.equinox.common_3.6.0.v20110523.jar" tofile="${bundleplacedir}/org.eclipse.equinox.common_3.6.0.v20110523.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.equinox.registry_3.5.101.R37x_v20110810-1611.jar" tofile="${bundleplacedir}/org.eclipse.equinox.registry_3.5.101.R37x_v20110810-1611.jar"/>
+  		<copy file="../libraries/libs/eclipse remote/org.eclipse.osgi.services.remoteserviceadmin_1.5.0.v20120610-1946.jar" tofile="${bundleplacedir}/org.eclipse.osgi.services.remoteserviceadmin_1.5.0.v20120610-1946.jar"/>
+  		-->
+  		
+  		<!-- ADD THE serversideimplementations BUNDLE -->
+  		<copy file="../_bundles/bundle_serversideimplementations/build/serversideimplementations.jar" tofile="${bundleplacedir}/serversideimplementations.jar"/>
+  		<copy file="../_bundles/lib_serversideinterfaces/build/serversideinterfaces.jar" tofile="${bundleplacedir}/serversideinterfaces.jar"/>
+  		
+  		<!-- ADD THE rosgi BUNDLE van tim -->
+  		<copy file="../_bundles/bundle_rosgi_tim/dist/rosgi_tim.jar" tofile="${bundleplacedir}/rosgi_implementation_tim.jar"/>
+  		<!-- And it's dependencies -->
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/kxml2-2.2.2.jar" tofile="${bundleplacedir}/kxml2-2.2.2.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/org.apache.felix.shell-1.2.0.jar" tofile="${bundleplacedir}/org.apache.felix.shell-1.2.0.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.cmpn-4.3.0.jar" tofile="${bundleplacedir}/osgi.cmpn-4.3.0.jar"/>
+  		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.core-4.3.0.jar" tofile="${bundleplacedir}/osgi.core-4.3.0.jar"/>
+  		
+  		
+  		<!-- END OF COMMON PART -->
+  		
+  		
+  		
+  		<!-- ADD THE MAIN FOR THE SERVER (A BUNDLE) -->
+    	<jar jarfile="bundle/remote.jar" basedir="./classes">
+    	 <manifest>
+           <attribute name=" Manifest-Version" value="1.0"/>
+           <attribute name="Created-By" value="ODS"/>
+           <attribute name="Bundle-SymbolicName" value="server"/>
+           <attribute name="Bundle-Name" value="server"/>
+           <attribute name="Bundle-Version" value="0.1"/>
+           <attribute name="Bundle-Activator" value="server.Activator"/>
+           <attribute name="Import-Package" value="be.ugent.ods.testapplications.service.list, be.ugent.ods.testapplications.service.interfaces, org.osgi.service.remoteserviceadmin, org.osgi.framework, org.osgi.util.tracker"/>
+     	 </manifest>
+       <fileset dir="." includes="*.class"/>  
+      </jar>
+      
+  </target>
+  
+  <!--
+  
+     === On clean ===
+  
+  -->
+  
+  <target name="clean" description="Remove builded files...">
+  
+      <!-- AVOID CRASHING -->
+      <mkdir dir="felix-cache"/>
+      <mkdir dir="bundle"/>
+  
+      <!-- DELETE ALL FILES -->
+      <delete includeemptydirs="true">
+   			 <fileset dir="felix-cache" includes="**"/>
+  		</delete>
+  		<delete includeemptydirs="true">
+   			 <fileset dir="bundle" includes="**"/>
+  		</delete>
+  		
+  </target>
+</project>

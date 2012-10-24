@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="serversideimplementations" default="makejar" basedir=".">
+  
+  <target name ="makejar" description="Create a jar for the felix bundles">
+  
+      <!-- MAKE BUNDLE DIR -->
+      <mkdir dir="build"/>
+
+      <!-- JAR IT -->
+      <jar jarfile="build/serversideinterfaces.jar" basedir="bin" manifest="META-INF/MANIFEST.MF">
+          <fileset dir="." includes="*.class"/>
+      </jar>
+  </target>
+</project>
