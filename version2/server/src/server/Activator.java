@@ -49,7 +49,7 @@ public class Activator implements BundleActivator {
 			moduleTracker.open();
 			
 			try {
-				moduleTracker.waitForService(1000);
+				moduleTracker.waitForService(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -84,7 +84,7 @@ public class Activator implements BundleActivator {
 			@Override
 			public void run() {
 				try {
-					rsaTracker.waitForService(1000);
+					rsaTracker.waitForService(5000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

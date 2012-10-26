@@ -36,7 +36,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:textOff="@string/dosgi"
-        android:textOn="@string/dosgi" />
+        android:textOn="@string/dosgi"
+         android:enabled="false" />
 
     <Button
         android:id="@+id/button_runtest"
@@ -64,7 +65,7 @@
         android:layout_alignRight="@+id/toggleButton_local"
         android:textOn="@string/image" 
         android:textOff="@string/image"
-        android:enabled="false" />
+        />
 
     <ToggleButton
         android:id="@+id/toggleButton_video"

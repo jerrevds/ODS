@@ -16,6 +16,7 @@ import be.ugent.ods.osgi.felix.Config;
 import be.ugent.ods.osgi.felix.OSGiRuntime;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.implementations.EchoTest;
+import be.ugent.ods.osgi.tests.implementations.GlowFilterTest;
 import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
 import be.ugent.ods.osgi.tests.interfaces.TestInterface;
 import be.ugent.ods.testapplications.service.list.TestApplicationProtocolList;
@@ -68,7 +69,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		// MAKE THE BUTTONS WORK
 		int[] testButtons = new int[] {R.id.toggleButton_echo, R.id.toggleButton_image, R.id.toggleButton_video};
 		initButtonForTest(R.id.toggleButton_echo, new EchoTest(), testButtons); //echo test button
-		initButtonForTest(R.id.toggleButton_image, new EchoTest()/*TODO*/, testButtons); //image test button
+		initButtonForTest(R.id.toggleButton_image, new GlowFilterTest()/*TODO*/, testButtons); //image test button
 		initButtonForTest(R.id.toggleButton_video, new EchoTest()/*TODO*/, testButtons); //video test button
 		
 		int[] rsaButtons = new int[]{R.id.toggleButton_local, R.id.toggleButton_rosgi, R.id.toggleButton_dosgi};

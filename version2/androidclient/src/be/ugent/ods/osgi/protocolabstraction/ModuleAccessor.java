@@ -13,6 +13,7 @@ import org.osgi.service.remoteserviceadmin.RemoteServiceAdmin;
 import android.provider.SyncStateContract.Helpers;
 import be.ugent.ods.osgi.felix.OSGiRuntime;
 import be.ugent.ods.testapplications.service.interfaces.EchoService;
+import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
 import be.ugent.ods.testapplications.service.list.TestApplicationProtocolList;
 
 public class ModuleAccessor {
@@ -109,7 +110,7 @@ public class ModuleAccessor {
 	public EndpointDescription getCurrentEndpointDescriptionFor(Class<?> c){
 		Map<String, String> rosgitim_ids = new HashMap<String, String>();
 		rosgitim_ids.put(EchoService.class.getName(), "41");
-		
+		rosgitim_ids.put(GlowFilterService.class.getName(), "42");
 		
 		Map<Integer, EndpointDescription> endpoints = new HashMap<Integer, EndpointDescription>();
 		
