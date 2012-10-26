@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>OSGi</name>
+	<name>androidclient</name>
 	<comment></comment>
 	<projects>
 		<project>androiddexify</project>
