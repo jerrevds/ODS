@@ -4,6 +4,7 @@ package be.ugent.ods.osgi;
 import java.io.InputStream;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -31,6 +32,8 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	
 	// other:
 	private Handler UIHandler;
+
+	private ProgressDialog mProgressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -108,6 +111,8 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	 */
 	public void runTest(final TestInterface test) {
 		final FeedbackInterface feedback = this;
+		mProgressDialog = new ProgressDialog(this);
+		mProgressDialog.show();
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
 				test.runTest(accessor, feedback);
@@ -201,7 +206,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 				LinearLayout layout = (LinearLayout)findViewById(R.id.linearlayout_pushtestview);
 				layout.removeAllViews();
 				layout.addView(view);
-			//	mProgressDialog.dismiss();
+				mProgressDialog.dismiss();
 			}
 		});
 	}

@@ -1,4 +1,4 @@
-package be.ugent.ods.testapplications.service.impl;
+package be.ugent.ods.testapplications.service.impl.imagehelp;
 
 public class Kernel {
 	private int mWidth;

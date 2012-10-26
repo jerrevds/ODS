@@ -16,6 +16,8 @@ limitations under the License.
 
 package be.ugent.ods.testapplications.service.impl;
 
+import be.ugent.ods.testapplications.service.impl.imagehelp.GaussianFilter;
+import be.ugent.ods.testapplications.service.impl.imagehelp.PixelUtils;
 import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
 
 
@@ -53,6 +55,7 @@ public class GlowFilterImpl extends GaussianFilter implements GlowFilterService 
 	}
 	
     public int[] filter( int[] src ,int w, int h) {
+    	System.out.println("do image");
         int width = w;
         int height = h;
 

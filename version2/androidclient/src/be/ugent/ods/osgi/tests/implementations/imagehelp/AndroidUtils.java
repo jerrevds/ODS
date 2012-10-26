@@ -1,4 +1,4 @@
-package be.ugent.ods.osgi.tests.implementations;
+package be.ugent.ods.osgi.tests.implementations.imagehelp;
 
 import android.content.Context;
 import android.content.res.Resources;
