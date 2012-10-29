@@ -8,8 +8,10 @@ import org.osgi.framework.BundleContext;
 
 import be.ugent.ods.testapplications.service.impl.EchoServiceImpl;
 import be.ugent.ods.testapplications.service.impl.GlowFilterImpl;
+import be.ugent.ods.testapplications.service.impl.VideoServiceImpl;
 import be.ugent.ods.testapplications.service.interfaces.EchoService;
 import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
+import be.ugent.ods.testapplications.service.interfaces.VideoService;
 
 public class Activator implements BundleActivator {
 
@@ -35,9 +37,17 @@ public class Activator implements BundleActivator {
 		// register the service
 		context.registerService(GlowFilterService.class.getName(), glowImpl, props);
 
-		// -- SOME OTHER SERVICE --
-
-		// ...
+		// -- VIDEOSERVICE --
+		// make a service
+		props = new Hashtable<String, Object>();
+		props.put("service.exported.interfaces", "*");
+		VideoServiceImpl videoImpl = new VideoServiceImpl();
+		
+		//register the service
+		context.registerService(VideoService.class.getName(), videoImpl, props);
+		
+		// -- SOME OTHER SERVICE
+		
 	}
 
 	@Override
@@ -45,3 +55,4 @@ public class Activator implements BundleActivator {
 	}
 
 }
+

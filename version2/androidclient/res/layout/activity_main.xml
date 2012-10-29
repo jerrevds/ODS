@@ -64,8 +64,7 @@
         android:layout_alignBottom="@+id/toggleButton_echo"
         android:layout_alignRight="@+id/toggleButton_local"
         android:textOn="@string/image" 
-        android:textOff="@string/image"
-        />
+        android:textOff="@string/image" />
 
     <ToggleButton
         android:id="@+id/toggleButton_video"
@@ -75,6 +74,6 @@
         android:layout_alignParentRight="true"
         android:textOn="@string/video"
         android:textOff="@string/video"
-        android:enabled="false" />
+		/>
 
 </RelativeLayout>

@@ -1,5 +1,8 @@
 package be.ugent.ods.osgi.tests.implementations;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -48,6 +51,13 @@ public class GlowFilterTest implements TestInterface {
 		float retValue = 0;
 		retValue = (float) (value / 100f);
 		return retValue;
+	}
+
+	@Override
+	public void runActivityForResult(int requestCode, int resultCode,
+			Intent data) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
