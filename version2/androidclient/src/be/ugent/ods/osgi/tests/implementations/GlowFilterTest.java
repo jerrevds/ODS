@@ -1,7 +1,5 @@
 package be.ugent.ods.osgi.tests.implementations;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -12,7 +10,6 @@ import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.implementations.imagehelp.AndroidUtils;
 import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
 import be.ugent.ods.osgi.tests.interfaces.TestInterface;
-import be.ugent.ods.testapplications.service.interfaces.EchoService;
 import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
 
 public class GlowFilterTest implements TestInterface {
