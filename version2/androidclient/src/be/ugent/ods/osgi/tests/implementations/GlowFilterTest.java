@@ -10,6 +10,7 @@ import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.implementations.imagehelp.AndroidUtils;
 import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
 import be.ugent.ods.osgi.tests.interfaces.TestInterface;
+import be.ugent.ods.osgi.tests.measure.MeasurementTool;
 import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
 
 public class GlowFilterTest implements TestInterface {
@@ -28,9 +29,19 @@ public class GlowFilterTest implements TestInterface {
 		int mRadiusValue = 70;
 		int mAmountValue = 70;
 		GlowFilterService glow = accessor.getModule(GlowFilterService.class);
+		
+		
+		MeasurementTool tool = new MeasurementTool();
+		tool.startMeasuring(1, feedback.getActivity(), "image"+accessor.getCurrentRsaIndex());
+		
+		
 		glow.setAmount(getAmout(mAmountValue));
 		glow.setRadius(mRadiusValue);
 		mColors = glow.filter(mColors, width, height);
+		
+		tool.stopMeasuring();
+		
+		
 		Bitmap mFilterBitmap = Bitmap.createBitmap(mColors, 0, width, width, height,
 				Bitmap.Config.ARGB_8888);
 		ImageView mModifyImageView = new ImageView(feedback.getActivity());
