@@ -24,7 +24,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-public class MeasurementTool {
+public class MeasurementTool implements MeasurementInterface {
 	private int iterations;
 	private long start;
 	private ApplicationInfo appinfo;
@@ -186,7 +186,7 @@ public class MeasurementTool {
 		}
 	}
 
-	public void send() {
+	private void send() {
 
 		// values observed in the GoogleDocs original html form
 		results.add(new BasicNameValuePair("pageNumber", "0"));

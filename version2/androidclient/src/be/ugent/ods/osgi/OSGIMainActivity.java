@@ -22,6 +22,8 @@ import be.ugent.ods.osgi.tests.implementations.GlowFilterTest;
 import be.ugent.ods.osgi.tests.implementations.VideoTest;
 import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
 import be.ugent.ods.osgi.tests.interfaces.TestInterface;
+import be.ugent.ods.osgi.tests.measure.MeasurementInterface;
+import be.ugent.ods.osgi.tests.measure.MeasurementTool;
 import be.ugent.ods.testapplications.service.list.TestApplicationProtocolList;
 
 public class OSGIMainActivity extends Activity implements FeedbackInterface {
@@ -111,13 +113,14 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	/**
 	 * run a test
 	 */
-	public void runTest(final TestInterface test) {
+	public void runTest(final TestInterface test,final int count) {
 		final FeedbackInterface feedback = this;
+		final MeasurementInterface measurement = new MeasurementTool();
 		mProgressDialog = new ProgressDialog(this);
 		mProgressDialog.show();
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
-				test.runTest(accessor, feedback);
+				test.runTest(accessor, feedback, measurement,count);
 			}
 		});
 
@@ -183,9 +186,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		Button run = (Button) findViewById(buttonId);
 		run.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				for(int i=0;i<count;i++) {
-					runTest(currenttest);
-				}
+					runTest(currenttest, count);
 			}
 		});
 	}

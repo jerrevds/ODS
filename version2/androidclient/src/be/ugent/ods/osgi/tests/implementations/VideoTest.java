@@ -12,51 +12,94 @@ import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
 import be.ugent.ods.osgi.tests.interfaces.TestInterface;
 import be.ugent.ods.testapplications.service.interfaces.VideoService;
 
-public class VideoTest implements TestInterface {
-	
+public class VideoTest extends TestInterface {
+
 	private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
-	
-	private ModuleAccessor accessor;
-	private FeedbackInterface feedback;
-	
+
+
+
+	private VideoService service;
+
+	private Uri videoUri;
+
 	@Override
-	public void runTest(ModuleAccessor accessor, FeedbackInterface feedback) {
-		this.accessor = accessor;
-		this.feedback = feedback;
-		
-		//create new Intent
-		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-		
-		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // set the video image quality to high
-		// start the Video Capture Intent
-		feedback.getActivity().startActivityForResult(intent, CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+	public void runActivityForResult(int requestCode, int resultCode,
+			Intent data) {
+		if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
+			if (resultCode == Activity.RESULT_OK) {
+				videoUri = data.getData();
+
+				waitingForResult=false;
+
+				
+			} else if (resultCode == Activity.RESULT_CANCELED) {
+				waitingForResult=false;
+				Log.d("HELP", "hier2");
+			} else {
+				waitingForResult=false;
+				Log.d("HELP", "hier3");
+			}
+		}
+
 	}
 
 	@Override
-	public void runActivityForResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
-    	    if (resultCode == Activity.RESULT_OK) {
-    	    	Uri videoUri = data.getData();
-    	    	
-    	    	//TODO data naar server sturen en terug
-    	    	VideoService service = (VideoService)accessor.getModule(VideoService.class);
-    	    	//videoUri = service.doSomething(videoUri); interface werkt blijkbaar met ander URI object, niet echt belangrijk op het moment
-    	    	
-    	    	VideoView myVideoView = new VideoView(feedback.getActivity());
-    	    	myVideoView.setVisibility(0);
-    	    	myVideoView.setVideoURI(videoUri);
-    	    	myVideoView.setMediaController(new MediaController(feedback.getActivity()));
-    	    	myVideoView.requestFocus();
-    	    	myVideoView.start();
-    	    	
-    	    	feedback.pushTestView(myVideoView);
-    	    } else if (resultCode == Activity.RESULT_CANCELED) {
-    	        Log.d("HELP","hier2");
-    	    } else {
-    	        Log.d("HELP","hier3");
-    	    }
-    	}
+	public void test() {
+		// TODO data naar server sturen en terug
 		
+		// videoUri = service.doSomething(videoUri); interface werkt
+		// blijkbaar met ander URI object, niet echt belangrijk op het
+		// moment
+
+	}
+
+	@Override
+	public void preRun(ModuleAccessor accessor) {
+		// create new Intent
+		waitingForResult=true;
+		service = (VideoService) accessor
+				.getModule(VideoService.class);
+		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
+		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // set the video
+															// image quality to
+															// high
+		// start the Video Capture Intent
+		feedback.getActivity().startActivityForResult(intent,
+				CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+
+	}
+
+	@Override
+	public void postRun() {
+		
+	
+		feedback.getActivity().runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				//videoview needs for some f***** reason a main thread
+				VideoView myVideoView= new VideoView(feedback.getActivity());
+				myVideoView.setVisibility(0);
+				myVideoView.setVideoURI(videoUri);
+				myVideoView.setMediaController(new MediaController(feedback
+						.getActivity()));
+				myVideoView.requestFocus();
+				myVideoView.start();
+				feedback.pushTestView(myVideoView);
+			}
+		});
+		
+		
+
+
+
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "video";
 	}
 
 }

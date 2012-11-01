@@ -8,24 +8,39 @@ import be.ugent.ods.osgi.tests.interfaces.TestInterface;
 import be.ugent.ods.osgi.tests.measure.MeasurementTool;
 import be.ugent.ods.testapplications.service.interfaces.EchoService;
 
-public class EchoTest implements TestInterface {
+public class EchoTest extends TestInterface {
 	
-	public void runTest(ModuleAccessor accessor, FeedbackInterface feedback) {
-		EchoService echoservice = accessor.getModule(EchoService.class);
-		MeasurementTool tool = new MeasurementTool();
-		tool.startMeasuring(1, feedback.getActivity(), "echotest"+accessor.getCurrentRsaIndex());
-		String response = echoservice.echoString("print this!");
-		
-		//show the anwser
+	private String response;
+	private EchoService echoservice;
 
+
+	@Override
+	public void runActivityForResult(int requestCode, int resultCode, Intent data) {
+	}
+
+	@Override
+	public void test() {
+		response = echoservice.echoString("print this!");
+		
+	}
+
+	@Override
+	public void preRun(ModuleAccessor accessor) {
+		echoservice = accessor.getModule(EchoService.class);
+		
+	}
+
+	@Override
+	public void postRun() {
 		TextView text = new TextView(feedback.getActivity());
 		text.setText("answer was: "+response);
-		tool.stopMeasuring();
 		feedback.pushTestView(text);
 	}
 
 	@Override
-	public void runActivityForResult(int requestCode, int resultCode, Intent data) {
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "echotest";
 	}
 
 }
