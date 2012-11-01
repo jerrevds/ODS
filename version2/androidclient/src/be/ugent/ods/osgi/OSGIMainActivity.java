@@ -51,6 +51,8 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			osgi.start();
 			
 			startBundle("rosgitim", R.raw.rosgitim);
+			startBundle("rosgiudp", R.raw.rosgiudp);
+			startBundle("rsaother", R.raw.rsaother);
 			//startBundle("greeter_interface");
 			//startBundle("greeter_service");
 			startBundle("serversideimplementations", R.raw.serversideimplementations);
@@ -77,18 +79,16 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		initButtonForTest(R.id.toggleButton_image, new GlowFilterTest()/*TODO*/, testButtons); //image test button
 		initButtonForTest(R.id.toggleButton_video, new VideoTest()/*TODO*/, testButtons); //video test button
 		
-		int[] rsaButtons = new int[]{R.id.toggleButton_local, R.id.toggleButton_rosgi, R.id.toggleButton_dosgi};
+		int[] rsaButtons = new int[]{R.id.toggleButton_local, R.id.toggleButton_rosgi, R.id.toggleButton_udp, R.id.toggleButton_other};
 		initButtonForRSA(R.id.toggleButton_local, TestApplicationProtocolList.PROTOCOL_LOCAL, rsaButtons);
 		initButtonForRSA(R.id.toggleButton_rosgi, TestApplicationProtocolList.PROTOCOL_ROSGI_TIM, rsaButtons);
-		initButtonForRSA(R.id.toggleButton_dosgi, TestApplicationProtocolList.PROTOCOL_ROSGI_TIM/*TODO*/, rsaButtons);
+		initButtonForRSA(R.id.toggleButton_udp, TestApplicationProtocolList.PROTOCOL_ROSGI_UDP, rsaButtons);
+		initButtonForRSA(R.id.toggleButton_other, TestApplicationProtocolList.PROTOCOL_OTHER, rsaButtons);
 		
 		
-		Button run = (Button) findViewById(R.id.button_runtest);
-		run.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				runTest(currenttest);
-			}
-		});
+		initButtonForRun(R.id.button_runtest_1, 1);
+		initButtonForRun(R.id.button_runtest_5, 5);
+		initButtonForRun(R.id.button_runtest_20, 20);
 	}
 	
 	/**
@@ -172,6 +172,20 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			public void onClick(View v) {
 				togglegroup(allButtons, buttonId);
 				accessor.setUseRSAModule(rsaIndex);
+			}
+		});
+	}
+	
+	/**
+	 * init run button
+	 */
+	private void initButtonForRun(final int buttonId, final int count){
+		Button run = (Button) findViewById(buttonId);
+		run.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				for(int i=0;i<count;i++) {
+					runTest(currenttest);
+				}
 			}
 		});
 	}

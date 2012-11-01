@@ -1,4 +1,4 @@
-package rsa;
+package udprsa;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -39,15 +39,15 @@ import org.osgi.service.remoteserviceadmin.RemoteServiceAdminListener;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-import rsa.exception.ROSGiException;
-import rsa.network.TCPChannelFactory;
-import rsa.network.api.MessageReceiver;
-import rsa.network.api.MessageSender;
-import rsa.network.api.NetworkChannel;
-import rsa.network.api.NetworkChannelFactory;
-import rsa.network.message.ROSGiMessage;
-import rsa.network.message.RemoteCallMessage;
-import rsa.network.message.RemoteCallResultMessage;
+import udprsa.exception.ROSGiException;
+import udprsa.network.TCPChannelFactory;
+import udprsa.network.api.MessageReceiver;
+import udprsa.network.api.MessageSender;
+import udprsa.network.api.NetworkChannel;
+import udprsa.network.api.NetworkChannelFactory;
+import udprsa.network.message.ROSGiMessage;
+import udprsa.network.message.RemoteCallMessage;
+import udprsa.network.message.RemoteCallResultMessage;
 
 /*
  * Main class ... implements RemoteServiceAdmin, and implements the messaging protocol

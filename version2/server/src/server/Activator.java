@@ -27,18 +27,99 @@ public class Activator implements BundleActivator {
 	//
 	
 
-	public void start(BundleContext context) throws Exception {
+	public void start(final BundleContext context) throws Exception {
 		//
 		// export remote modules to all RSA-implementations (!)
 		//
 		
-		for(String filter: TestApplicationProtocolList.protocols) {
+		
+		// EVERYTHING IN THE SERVER HAPPENS AUTOMATICALLY...
+		
+		/*for(String filter: TestApplicationProtocolList.protocols) {
 			registerRSAByFilter(context, filter);
-		}
+		}*/
+		
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {}
+				
+				System.out.println("");
+				System.out.println("");
+				System.out.println("[serverinfo]");
+				System.out.println("");
+				System.out.println("+----------+");
+				System.out.println("+ Services |");
+				System.out.println("+----------+");
+				printAllServices(context);
+
+				System.out.println("");
+				System.out.println("+-----------+");
+				System.out.println("+ Protocols | ");
+				System.out.println("+-----------+");
+				printAllRSAs(context);
+				System.out.println("");
+			}
+		}).start();
 		
 	}
 	
+	
+	
+	private void printAllServices(BundleContext context){
+		for(Class<?> serverModuleClass: TestApplicationExternalModulesList.modules) {
+			final ServiceTracker moduleTracker = new ServiceTracker(context, serverModuleClass, null);
+			moduleTracker.open();
+			
+			try {
+				moduleTracker.waitForService(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			ServiceReference<?> exportedservref = moduleTracker.getServiceReference();
+			
+			if(exportedservref==null) {
+				throw new RuntimeException("The following service can not be found..."+serverModuleClass.toString());
+			}
+			
+			System.out.println("Service \""+serverModuleClass.getCanonicalName()+"\" has id: \""+exportedservref.getProperty("service.id")+"\"");
+		}
+	}
+	
 
+	private void printAllRSAs(BundleContext context) {
+		int index=0;
+		for(String filter: TestApplicationProtocolList.protocols) {
+			Filter f;
+			try {
+				f = context.createFilter("(&("+Constants.OBJECTCLASS+"=org.osgi.service.remoteserviceadmin.RemoteServiceAdmin)"+filter+")");
+			} catch (InvalidSyntaxException e) {
+				throw new RuntimeException("Filter in illegal format: \""+filter+"\"");
+			}
+			final ServiceTracker rsaTracker = new ServiceTracker(context, f, null);
+			rsaTracker.open();
+			
+			try {
+				rsaTracker.waitForService(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+			ServiceReference<?> exportedservref = rsaTracker.getServiceReference();
+			
+			if(exportedservref==null) {
+				throw new RuntimeException("The following RSA can not be found..."+filter);
+			}
+			
+			System.out.println("RSA \""+TestApplicationProtocolList.protocolnames[index]+"\" is loaded!");
+			index++;
+		}
+		
+	}
 	
 	
 	private void registerAllServicesToRSA(BundleContext context, RemoteServiceAdmin service){
