@@ -12,6 +12,8 @@ public abstract class TestInterface {
 	protected FeedbackInterface feedback;
 	protected boolean waitingForResult=false;
 	public void runTest(ModuleAccessor accessor, FeedbackInterface feedback, MeasurementInterface measurements, int iterations){
+		//in worst case this variable still stands on true...
+		waitingForResult=false;
 		this.feedback = feedback;
 		preRun(accessor);
 		
