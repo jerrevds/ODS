@@ -1,6 +1,5 @@
 package be.ugent.ods.osgi.tests.implementations;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -8,35 +7,21 @@ import android.widget.ScrollView;
 import be.ugent.ods.osgi.R;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.implementations.imagehelp.AndroidUtils;
-import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
-import be.ugent.ods.osgi.tests.interfaces.TestInterface;
-import be.ugent.ods.osgi.tests.measure.MeasurementTool;
+import be.ugent.ods.osgi.tests.interfaces.AbstractTest;
 import be.ugent.ods.testapplications.service.interfaces.GlowFilterService;
 
-public class GlowFilterTest extends TestInterface {
+public class GlowFilterTest extends AbstractTest {
 	private int[] mColors;
 	private GlowFilterService glow;
 	private ImageView mOriginalImageView;
 	private int width;
 	private int height;
 
-	public GlowFilterTest() {
-
-	}
-
-
 
 	private float getAmout(int value) {
 		float retValue = 0;
 		retValue = (float) (value / 100f);
 		return retValue;
-	}
-
-	@Override
-	public void runActivityForResult(int requestCode, int resultCode,
-			Intent data) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

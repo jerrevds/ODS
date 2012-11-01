@@ -1,14 +1,10 @@
 package be.ugent.ods.osgi.felix;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.felix.framework.Felix;
-import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 

@@ -1,22 +1,14 @@
 package be.ugent.ods.osgi.tests.implementations;
 
-import android.content.Intent;
 import android.widget.TextView;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
-import be.ugent.ods.osgi.tests.interfaces.FeedbackInterface;
-import be.ugent.ods.osgi.tests.interfaces.TestInterface;
-import be.ugent.ods.osgi.tests.measure.MeasurementTool;
+import be.ugent.ods.osgi.tests.interfaces.AbstractTest;
 import be.ugent.ods.testapplications.service.interfaces.EchoService;
 
-public class EchoTest extends TestInterface {
+public class EchoTest extends AbstractTest {
 	
 	private String response;
 	private EchoService echoservice;
-
-
-	@Override
-	public void runActivityForResult(int requestCode, int resultCode, Intent data) {
-	}
 
 	@Override
 	public void test() {
@@ -27,7 +19,6 @@ public class EchoTest extends TestInterface {
 	@Override
 	public void preRun(ModuleAccessor accessor) {
 		echoservice = accessor.getModule(EchoService.class);
-		
 	}
 
 	@Override
@@ -39,7 +30,6 @@ public class EchoTest extends TestInterface {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "echotest";
 	}
 
