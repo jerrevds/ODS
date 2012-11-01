@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="rosgi_tim" default="makejar" basedir=".">
+  
+  <target name ="makejar" description="Create a jar for the felix bundles">
+  
+      <!-- MAKE DIST DIR -->
+      <mkdir dir="dist"/>
+
+      <!-- JAR IT -->
+      <jar jarfile="dist/rsa_other.jar" basedir="bin" >
+          <manifest>
+              <attribute name="Bundle-Name" value="Remote Service Admin Other Protocol"/>
+            <attribute name="Bundle-SymbolicName" value="rsa_other"/>
+              <attribute name="Bundle-Version" value="1.0"/>
+            <attribute name="Bundle-ManifestVersion" value="2" />
+            <attribute name="Bundle-Activator" value="rsaother.Activator"/>
+              <attribute name="Import-Package" value="org.osgi.framework;version=&quot;[1.4,2)&quot;,
+                org.osgi.util.tracker;version=&quot;[1.4,2)&quot;,
+                org.osgi.service.remoteserviceadmin;version=&quot;1.0.1&quot;, 
+                org.osgi.service.event;version=&quot;1.2&quot;, 
+                org.apache.felix.shell;resolution:=optional;version=&quot;1.0&quot;"/>
+            <attribute name="DynamicImport-Package" value="*"/>
+          </manifest>
+      </jar>
+  </target>
+		
+    <target name="clean" description="clean up">
+        <mkdir dir="dist"/><!-- avoid crash -->
+        <delete dir="dist" />
+    </target>
+</project>

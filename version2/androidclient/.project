@@ -4,8 +4,10 @@
 	<comment></comment>
 	<projects>
 		<project>androiddexify</project>
+		<project>bundle_otherprotocol</project>
 		<project>bundle_rosgi_tim</project>
 		<project>bundle_serversideimplementations</project>
+		<project>bundle_udp_protocol</project>
 		<project>lib_serversideinterfaces</project>
 	</projects>
 	<buildSpec>

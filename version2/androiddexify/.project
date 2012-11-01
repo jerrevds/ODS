@@ -3,8 +3,10 @@
 	<name>androiddexify</name>
 	<comment></comment>
 	<projects>
+		<project>bundle_otherprotocol</project>
 		<project>bundle_rosgi_tim</project>
 		<project>bundle_serversideimplementations</project>
+		<project>bundle_udp_protocol</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

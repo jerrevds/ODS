@@ -48,6 +48,11 @@
   		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.core-4.3.0.jar" tofile="${bundleplacedir}/osgicore.jar"/> -->
   		
   		
+  		<!-- ADD THE rosgi BUNDLE with udp -->
+  		<copy file="../_bundles/bundle_udp_protocol/dist/rosgi_udp.jar" tofile="${bundleplacedir}/rosgiudp.jar"/>
+  		
+  		<!-- ADD THE other protocol BUNDLE -->
+  		<copy file="../_bundles/bundle_otherprotocol/dist/rsa_other.jar" tofile="${bundleplacedir}/rsaother.jar"/>
   		
   		<!-- END OF COMMON PART -->
   		
