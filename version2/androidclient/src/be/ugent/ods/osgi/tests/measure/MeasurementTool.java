@@ -20,7 +20,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.TrafficStats;
-import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
