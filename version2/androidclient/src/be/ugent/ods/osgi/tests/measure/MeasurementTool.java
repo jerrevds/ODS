@@ -182,7 +182,7 @@ public class MeasurementTool {
 	public void send() {
 
 		// values observed in the GoogleDocs original html form
-		results.add(new BasicNameValuePair("pageNumber", "0"));
+		results.add(new BasicNameValuePair("pageNumber", "1"));
 		results.add(new BasicNameValuePair("backupCache", ""));
 		results.add(new BasicNameValuePair("submit", "Insturen"));
 		HttpClient client = new DefaultHttpClient();
