@@ -1,7 +1,5 @@
 package be.ugent.ods.osgi.tests.implementations;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.widget.TextView;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
@@ -13,10 +11,9 @@ import be.ugent.ods.testapplications.service.interfaces.EchoService;
 public class EchoTest implements TestInterface {
 	
 	public void runTest(ModuleAccessor accessor, FeedbackInterface feedback) {
-		
 		EchoService echoservice = accessor.getModule(EchoService.class);
 		MeasurementTool tool = new MeasurementTool();
-		tool.startMeasuring(1, feedback.getActivity());
+		tool.startMeasuring(1, feedback.getActivity(), "echotest"+accessor.getCurrentRsaIndex());
 		String response = echoservice.echoString("print this!");
 		
 		//show the anwser
