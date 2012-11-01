@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.TrafficStats;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
 public class MeasurementTool {
@@ -63,10 +64,12 @@ public class MeasurementTool {
 		}
 		// only get data for current app, note that uid from app isn't perse
 		// unique but it will provide a minimum of filtering required
-		this.dataR = TrafficStats.getUidRxBytes(appinfo.uid);
-		this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid);
-		this.dataT = TrafficStats.getUidTxBytes(appinfo.uid);
-		this.packetsT = TrafficStats.getUidTxPackets(appinfo.uid);
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			this.dataR = TrafficStats.getUidRxBytes(appinfo.uid);
+			this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid);
+			this.dataT = TrafficStats.getUidTxBytes(appinfo.uid);
+			this.packetsT = TrafficStats.getUidTxPackets(appinfo.uid);
+		}
 		this.context = context;
 		this.type = type;
 		this.started = true;
@@ -90,12 +93,14 @@ public class MeasurementTool {
 			throw new IllegalStateException("please fist start measuring");
 		}
 		long duration = System.currentTimeMillis() - start;
-		this.dataR = TrafficStats.getUidRxBytes(appinfo.uid) - this.dataR;
-		this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid)
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			this.dataR = TrafficStats.getUidRxBytes(appinfo.uid) - this.dataR;
+			this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid)
 				- this.packetsR;
-		this.dataT = TrafficStats.getUidTxBytes(appinfo.uid) - this.dataT;
-		this.packetsT = TrafficStats.getUidTxPackets(appinfo.uid)
+			this.dataT = TrafficStats.getUidTxBytes(appinfo.uid) - this.dataT;
+			this.packetsT = TrafficStats.getUidTxPackets(appinfo.uid)
 				- this.packetsT;
+		}
 		if (datapoints == 0) {
 			// avoid divide by zero in debug
 			datapoints = 1;
@@ -114,6 +119,8 @@ public class MeasurementTool {
 		results.add(new BasicNameValuePair("entry.5.single", "" + packetsR));
 		results.add(new BasicNameValuePair("entry.8.single", "" + dataT));
 		results.add(new BasicNameValuePair("entry.9.single", "" + dataR));
+		results.add(new BasicNameValuePair("entry.12.single", "" + android.os.Build.MODEL));
+		results.add(new BasicNameValuePair("entry.13.single", "" + Build.VERSION.SDK_INT));
 		send();
 		started = false;
 
@@ -182,7 +189,7 @@ public class MeasurementTool {
 	public void send() {
 
 		// values observed in the GoogleDocs original html form
-		results.add(new BasicNameValuePair("pageNumber", "1"));
+		results.add(new BasicNameValuePair("pageNumber", "0"));
 		results.add(new BasicNameValuePair("backupCache", ""));
 		results.add(new BasicNameValuePair("submit", "Insturen"));
 		HttpClient client = new DefaultHttpClient();
