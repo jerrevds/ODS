@@ -22,6 +22,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 
 public class MeasurementTool implements MeasurementInterface {
@@ -44,6 +45,7 @@ public class MeasurementTool implements MeasurementInterface {
 
 	List<BasicNameValuePair> results = new ArrayList<BasicNameValuePair>();
 	private String type;
+	private Handler handler;
 
 	// todo placeholder for git
 
@@ -73,7 +75,7 @@ public class MeasurementTool implements MeasurementInterface {
 		this.context = context;
 		this.type = type;
 		this.started = true;
-		this.thread = new Thread(new memRunnable());
+		
 		this.thread.start();
 		this.maxMemArb = 0;
 		this.maxcpu = 0;
@@ -85,6 +87,8 @@ public class MeasurementTool implements MeasurementInterface {
 		android.os.Debug.MemoryInfo[] mem = am
 				.getProcessMemoryInfo(new int[] { android.os.Process.myPid() });
 		memArb = mem[0].getTotalPrivateDirty();
+		handler = new Handler();
+		handler.postDelayed(new memRunnable(), 100);
 		return true;
 	}
 
@@ -107,6 +111,7 @@ public class MeasurementTool implements MeasurementInterface {
 		}
 		int avgCpu = cumCpu / datapoints;
 		int avgMemArb = cumMemArb / datapoints;
+		handler.removeCallbacks(null);
 		results.add(new BasicNameValuePair("entry.0.single", "" + avgCpu));
 		results.add(new BasicNameValuePair("entry.1.single", "" + avgMemArb));
 		results.add(new BasicNameValuePair("entry.10.single", "" + maxMemArb));
@@ -129,7 +134,7 @@ public class MeasurementTool implements MeasurementInterface {
 	public class memRunnable implements Runnable {
 		public void run() {
 			// do measuring
-			while (started) {
+			
 				ActivityManager am = (ActivityManager) context
 						.getSystemService(Context.ACTIVITY_SERVICE);
 				android.os.Debug.MemoryInfo[] mem = am
@@ -182,8 +187,11 @@ public class MeasurementTool implements MeasurementInterface {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				if(started){
+					handler.postDelayed(this, 100);
+				}
 			}
-		}
+		
 	}
 
 	private void send() {
