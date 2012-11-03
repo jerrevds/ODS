@@ -27,6 +27,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	
 	public void activate() throws RESTException {
 		// -- do something here...
+		System.out.println("Hello there!");
 	}
 
 	@Override
