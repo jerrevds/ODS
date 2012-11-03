@@ -45,6 +45,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	public ImportRegistration importService(EndpointDescription endpoint) {
 		// Maak een importRegistration aan voor de service...
 		// HMMM... ?
+		System.out.println("We have a new endpoint!!! ID: "+endpoint.getServiceId());
 		
 		
 		// NOTE: return an object of the class RESTImportReference?
