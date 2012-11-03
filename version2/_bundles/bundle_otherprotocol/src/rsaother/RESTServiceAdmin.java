@@ -29,8 +29,10 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	}
 	
 	public void activate() throws RESTException {
-		// -- do something here...
-		System.out.println("Hello there!");
+		/*
+		 * server opstarten
+		 */
+		// TODO
 		
 		
 		/*
@@ -64,29 +66,29 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		}catch(InvalidSyntaxException e){}
 	}
 
+	
+	
 	@Override
 	public Collection<ExportRegistration> exportService(ServiceReference reference, Map<String, ?> properties) {
 		//Kortom:
 		// - we hebben een implementatie (in reference) van een service
 		// - de interface moeten we wel aangeraken (kan in properties)
 		// - die moeten we toevoegen aan de Restlet server...
-		System.out.println("We have a new endpoint!!! ID: "+reference.getProperty("service.id"));
 		
 		
-		// NOTE: return an object of the class RESTExportReference?
-		return null;
+		
+		return null;// Sorry, not supported -Jeroen
 	}
 
 	@Override
 	public ImportRegistration importService(EndpointDescription endpoint) {
-		// Maak een importRegistration aan voor de service...
-		// HMMM... ?
-		System.out.println("Going to import a service!!! ID: "+endpoint.getServiceId());
-		
 		
 		// NOTE: return an object of the class RESTImportReference?
 		return null;
 	}
+	
+	
+	
 
 	@Override
 	public Collection<ExportReference> getExportedServices() {
