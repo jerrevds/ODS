@@ -110,9 +110,9 @@ public class ModuleAccessor {
 	
 	public EndpointDescription getCurrentEndpointDescriptionFor(Class<?> c){
 		Map<String, String> rosgitim_ids = new HashMap<String, String>();
-		rosgitim_ids.put(EchoService.class.getName(), "43");
-		rosgitim_ids.put(GlowFilterService.class.getName(), "44");
-		rosgitim_ids.put(VideoService.class.getName(), "45");
+		rosgitim_ids.put(EchoService.class.getName(), "44");
+		rosgitim_ids.put(GlowFilterService.class.getName(), "45");
+		rosgitim_ids.put(VideoService.class.getName(), "46");
 		
 		Map<Integer, EndpointDescription> endpoints = new HashMap<Integer, EndpointDescription>();
 		
