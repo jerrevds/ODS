@@ -224,6 +224,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			public void run() {
 				LinearLayout layout = (LinearLayout)findViewById(R.id.linearlayout_pushtestview);
 				layout.removeAllViews();
+				layout.removeView(view);
 				layout.addView(view);
 				mProgressDialog.dismiss();
 			}

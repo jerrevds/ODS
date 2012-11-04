@@ -1,14 +1,25 @@
 package be.ugent.ods.osgi.tests.implementations;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
+import android.widget.ViewFlipper;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.interfaces.AbstractTest;
 import be.ugent.ods.testapplications.service.interfaces.VideoService;
@@ -16,27 +27,57 @@ import be.ugent.ods.testapplications.service.interfaces.VideoService;
 public class VideoTest extends AbstractTest {
 
 	private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
-
-
 	protected Semaphore waitingForResult=new Semaphore(0);
-
 	private VideoService service;
-
 	private Uri videoUri;
+	
+	private int frame = 0;
+	private ArrayList<Bitmap> ar = null;
+	private ArrayList<byte[]> b = new ArrayList<byte[]>();
+	int begin = 0;
+	int einde = 0;
+	int width = 0;
+	int height = 0;
+	
+	private ArrayList<ArrayList<Bitmap>> resultmacroblocks;// = new ArrayList<ArrayList<Bitmap>>();
+	private ArrayList<Bitmap> frames = new ArrayList<Bitmap>();
 
+	@SuppressLint("NewApi")
 	@Override
 	public void runActivityForResult(int requestCode, int resultCode,
 			Intent data) {
 		if (requestCode == CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE) {
 			if (resultCode == Activity.RESULT_OK) {
 				videoUri = data.getData();
-				
+				MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+	    		retriever.setDataSource(feedback.getActivity(),videoUri);
+    	    	ArrayList<Bitmap> rev = new ArrayList<Bitmap>();
+    	    	MediaPlayer mp = MediaPlayer.create(feedback.getActivity(),videoUri);
+    	    	int millis = mp.getDuration();
+    	    	for(int i=0;i<millis;i+=100){
+    	    		boolean eralin = false;
+    	    		Bitmap bm = retriever.getFrameAtTime(i*10000);
+    	    		if(bm != null && !rev.contains(bm)){
+    	    			for(int j=0; j<rev.size();j++){
+    	    				if(bm.sameAs(rev.get(j))){
+    	    					eralin=true;
+    	    				}
+    	    			}
+    	    			if(!eralin){
+    	    				rev.add(bm);
+    	    			}
+    	    		}
+    	    	}
+        	    ar = rev;
+	    		for(int i=0;i< rev.size(); i++){
+	    			ar.set(i, rev.get(i));	    			
+	    		}
+				test();
 			} else if (resultCode == Activity.RESULT_CANCELED) {
 				Log.d("HELP", "hier2");
 			} else {
 				Log.d("HELP", "hier3");
-			}
-			
+			}		
 			waitingForResult.release();
 		}
 
@@ -44,12 +85,35 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void test() {
-		// TODO data naar server sturen en terug
-		
-		// videoUri = service.doSomething(videoUri); interface werkt
-		// blijkbaar met ander URI object, niet echt belangrijk op het
-		// moment
-
+		resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
+		for(int frame = 0; frame<ar.size();frame++){
+    		boolean done = false;
+    		resultmacroblocks.add(new ArrayList<Bitmap>());
+    		Bitmap source = ar.get(frame);
+    		Log.d("width,height",source.getWidth()+","+source.getHeight());
+    		width = source.getWidth();
+    		height = source.getHeight();
+    		while(!done){
+            	Bitmap bm = Bitmap.createBitmap(source, begin, einde, 16, 16);
+            	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            	bm.compress(CompressFormat.PNG, 0, bos);
+            	byte[] n = bos.toByteArray();
+            	byte[] result = service.doSomething(bm.getWidth(),bm.getHeight(),n);
+            	Bitmap nieuw = BitmapFactory.decodeByteArray(result, 0, result.length);
+            	resultmacroblocks.get(frame).add(nieuw);
+            	//resultmacroblocks.get(frame).add(bm);
+            	begin += 16;
+            	if(begin>=source.getWidth()){
+            		begin = 0;
+            		einde += 16;
+            		if(einde>=source.getHeight()){
+            			einde = 0;
+            			done = true;
+            		}
+            	}
+        		
+        	}
+    	}
 	}
 
 	@Override
@@ -65,7 +129,6 @@ public class VideoTest extends AbstractTest {
 		// start the Video Capture Intent
 		feedback.getActivity().startActivityForResult(intent,
 				CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-		
 		//wait
 		try {
 			waitingForResult.acquire();
@@ -75,20 +138,49 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void postRun() {
+		for(int frame = 0; frame<resultmacroblocks.size();frame++){
+    		ArrayList<Bitmap> bmFrame = resultmacroblocks.get(frame);
+        	Bitmap bmnieuw = Bitmap.createBitmap(width,height,bmFrame.get(0).getConfig());
+    		Canvas canvas = new Canvas(bmnieuw);
+    		canvas.drawBitmap(bmFrame.get(0), 0, 0, null);
+        	int aantal = 1;
+        	int y = 0;
+        	for(int i=1;i<(width/16);i++){
+        		if(aantal<bmFrame.size()){
+        			canvas.drawBitmap(bmFrame.get(aantal),i*16,y,null);
+        		}
+        		aantal++;
+        	}
+    		y+= 16;	
+        	while(aantal<bmFrame.size()){
+        		for(int i=0;i<(width/16);i++){
+            		if(aantal<bmFrame.size()){
+            			canvas.drawBitmap(bmFrame.get(aantal),i*16,y,null);
+            		}
+            		aantal++;
+            	}
+        		y+= 16;	
+        	}
+        	frames.add(bmnieuw);
+    	}
+		
+		Log.d("HELP","het aantal frames is: "+frames.size());
 		
 		feedback.getActivity().runOnUiThread(new Runnable() {
 			
 			@Override
 			public void run() {
 				//videoview needs for some f***** reason a main thread
-				VideoView myVideoView= new VideoView(feedback.getActivity());
-				myVideoView.setVisibility(0);
-				myVideoView.setVideoURI(videoUri);
-				myVideoView.setMediaController(new MediaController(feedback
-						.getActivity()));
-				myVideoView.requestFocus();
-				myVideoView.start();
-				feedback.pushTestView(myVideoView);
+				ViewFlipper imageFlipper = new ViewFlipper(feedback.getActivity());
+				for(int i=0;i<frames.size();i++){
+					ImageView im = new ImageView(feedback.getActivity());
+					im.setImageBitmap(frames.get(i));
+					imageFlipper.addView(im);
+				}
+				imageFlipper.setFlipInterval(2500);
+				imageFlipper.startFlipping();
+				feedback.pushTestView(imageFlipper);
+				
 			}
 		});
 
