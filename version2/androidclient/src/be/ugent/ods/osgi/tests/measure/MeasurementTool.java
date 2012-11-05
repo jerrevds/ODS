@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -24,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+@SuppressLint("NewApi")
 public class MeasurementTool implements MeasurementInterface {
 	private int iterations;
 	private long start;
@@ -65,6 +67,7 @@ public class MeasurementTool implements MeasurementInterface {
 		// only get data for current app, note that uid from app isn't perse
 		// unique but it will provide a minimum of filtering required
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			//get data as specific as possible for this proces. Remark: sdk>12 needed, to compile for lower versions the if check above is used (but this will reuslt in 0 values)
 			this.dataR = TrafficStats.getUidRxBytes(appinfo.uid);
 			this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid);
 			this.dataT = TrafficStats.getUidTxBytes(appinfo.uid);
@@ -94,6 +97,7 @@ public class MeasurementTool implements MeasurementInterface {
 		}
 		long duration = System.currentTimeMillis() - start;
 		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
+			//get data as specific as possible for this proces. Remark: sdk>12 needed, to compile for lower versions the if check above is used (but this will reuslt in 0 values)
 			this.dataR = TrafficStats.getUidRxBytes(appinfo.uid) - this.dataR;
 			this.packetsR = TrafficStats.getUidRxPackets(appinfo.uid)
 				- this.packetsR;
@@ -126,6 +130,11 @@ public class MeasurementTool implements MeasurementInterface {
 
 	}
 
+	/**
+	 * class specialy used to poll some data measruements
+	 * @author jerrevds
+	 *
+	 */
 	public class memRunnable implements Runnable {
 		public void run() {
 			// do measuring
