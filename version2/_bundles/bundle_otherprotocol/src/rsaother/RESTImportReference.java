@@ -15,6 +15,7 @@ public class RESTImportReference implements ImportReference{
 	
 	public RESTImportReference(ServiceRegistration registration, EndpointDescription endpointDescription){
 		this.endpointDescription = endpointDescription;
+		this.registration = registration;
 	}
 	
 	@Override
