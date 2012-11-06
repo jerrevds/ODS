@@ -16,6 +16,7 @@ import org.osgi.service.remoteserviceadmin.ImportRegistration;
 import org.osgi.service.remoteserviceadmin.RemoteServiceAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
@@ -33,7 +34,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	
 	BundleContext context;
 	
-	private Server server;
+	private Component component;
 	
 	public RESTServiceAdmin(BundleContext context){
 		this.context = context;
@@ -42,30 +43,9 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	public void activate() throws RESTException {
 		/*
 		 * server opstarten
-		 */
-		String networkInterface = context.getProperty("rsa.interface");
-		// first check if it exists
-		try {
-			boolean exists = false;
-			if(networkInterface!=null){	
-				for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-		            NetworkInterface intf = en.nextElement();
-		            if(intf.getName().equals(networkInterface)){
-		            	if(intf.isUp())
-		            		exists = true;	
-		            }
-		        }
-				
-			}
-		}catch(Exception e){}
-		
-		int port = -1;
-		String portString = context.getProperty("rsa.port");
-		if(portString!=null){
-			port = Integer.parseInt(portString);
-		}
-		
-		server = new Server(Protocol.HTTP, port);
+		 */		
+		component = new Component();
+		component.getServers().add(Protocol.HTTP);
 		
 		/*
 		 * ServiceListener that automatically exports services with exported interfaces
@@ -106,7 +86,9 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		// - we hebben een implementatie (in reference) van een service
 		// - de interface moeten we wel aangeraken (kan in properties)
 		// - die moeten we toevoegen aan de Restlet server...
-		
+		component.getDefaultHost().attach("/" + reference.getProperty("service.id") + "/", new Restlet() {
+			
+		});
 		
 		return null;// Sorry, not supported -Jeroen
 	}
