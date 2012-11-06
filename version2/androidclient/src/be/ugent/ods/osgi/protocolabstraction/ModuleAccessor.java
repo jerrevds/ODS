@@ -129,7 +129,11 @@ public class ModuleAccessor {
 		endpoints.put(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM, endpoint);
 		
 		// other...
-		
+		properties = new HashMap<String, Object>();
+		properties.put("endpoint.id", "http://localhost:80/" + rosgitim_ids.get(c.getName()) + "/");
+		properties.put("interface", c);
+		endpoint = new EndpointDescription(properties);
+		endpoints.put(TestApplicationProtocolList.PROTOCOL_OTHER, endpoint);
 		
 		// pick correct one
 		return endpoints.get(currentrsaindex);
