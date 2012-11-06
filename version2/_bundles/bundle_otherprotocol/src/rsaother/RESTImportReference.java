@@ -13,7 +13,7 @@ public class RESTImportReference implements ImportReference{
 	private ServiceRegistration registration;
 	private EndpointDescription endpointDescription;
 	
-	private RESTImportReference(ServiceRegistration registration, EndpointDescription endpointDescription){
+	public RESTImportReference(ServiceRegistration registration, EndpointDescription endpointDescription){
 		this.endpointDescription = endpointDescription;
 	}
 	
