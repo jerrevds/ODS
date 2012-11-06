@@ -1,5 +1,7 @@
 package rsaother;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
@@ -17,6 +19,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.restlet.Component;
 import org.restlet.Restlet;
 import org.restlet.data.Protocol;
+import org.restlet.resource.Get;
 
 import rsaother.exception.RESTException;
 
@@ -79,11 +82,42 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		// - we hebben een implementatie (in reference) van een service
 		// - de interface moeten we wel aangeraken (kan in properties)
 		// - die moeten we toevoegen aan de Restlet server...
-		component.getDefaultHost().attach("/" + reference.getProperty("service.id") + "/", new Restlet() {
+		Object serviceObject = context.getService(reference);
+		Method[] methods = serviceObject.getClass().getMethods();
+		
+		for(int i = 0; i < methods.length; i++) {
+			String URI = "/" + reference.getProperty("service.id") + "/" + RESTImportProxyHandler.methodToID(methods[i]);
 			
-		});
+			component.getDefaultHost().attach(URI, new RemoteMethode(serviceObject, methods[i]));
+		}
 		
 		return null;// Sorry, not supported -Jeroen
+	}
+	
+	private class RemoteMethode extends Restlet implements IRemoteRestCall {
+
+		private Object service;
+		private Method method;
+		
+		public RemoteMethode(Object service, Method method) {
+			this.service = service;
+			this.method = method;
+		}
+		
+		@Get
+		public Object doCall(Object[] args) {
+			try {
+				return method.invoke(service, args);
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
 	}
 
 	@Override
