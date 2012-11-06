@@ -1,8 +1,6 @@
 package rsaother;
 
-import java.net.NetworkInterface;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Map;
 
 import org.osgi.framework.BundleContext;
@@ -17,13 +15,8 @@ import org.osgi.service.remoteserviceadmin.RemoteServiceAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.restlet.Component;
-import org.restlet.Context;
-import org.restlet.Request;
-import org.restlet.Response;
 import org.restlet.Restlet;
-import org.restlet.Server;
 import org.restlet.data.Protocol;
-import org.restlet.resource.ServerResource;
 
 import rsaother.exception.RESTException;
 
@@ -95,10 +88,12 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 
 	@Override
 	public ImportRegistration importService(EndpointDescription endpoint) {
+		Class<?> interfaceClass = (Class<?>) endpoint.getProperties().get("interface");
+		String baseUrl = endpoint.getId();
 		
+		RESTImportProxyHandler proxyhandler = new RESTImportProxyHandler(interfaceClass, baseUrl);
 		
-		// NOTE: return an object of the class RESTImportReference?
-		return null;
+		return proxyhandler.getImportRegistration(context, endpoint);
 	}
 	
 	
@@ -113,5 +108,5 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	public Collection<ImportReference> getImportedEndpoints() {
 		throw new RuntimeException("Sorry, not supported yet... -Jeroen");
 	}
-
+	
 }
