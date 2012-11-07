@@ -68,7 +68,7 @@ public class RESTImportProxyHandler implements InvocationHandler {
 		String joined = m.getName();
 		
 		for(int i=0;i<params.length;i++) {
-			joined += "_" + params[i].getCanonicalName();
+			joined += "/" + params[i].getCanonicalName();
 		}
 		
 		return joined;
