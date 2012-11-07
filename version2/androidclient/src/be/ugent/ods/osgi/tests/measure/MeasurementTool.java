@@ -25,7 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-@SuppressLint("NewApi")
+@SuppressLint({ "NewApi", "NewApi", "NewApi", "NewApi" })
 public class MeasurementTool implements MeasurementInterface {
 	private int iterations;
 	private long start;
