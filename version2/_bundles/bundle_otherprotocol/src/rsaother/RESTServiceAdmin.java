@@ -46,7 +46,9 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	public void activate() throws RESTException {
 		/*
 		 * server opstarten
-		 */		
+		 */
+		servicesByID = new HashMap<String, Object>();
+		
 		component = new Component();
 		Server server = component.getServers().add(Protocol.HTTP, 8080);
 		try {
