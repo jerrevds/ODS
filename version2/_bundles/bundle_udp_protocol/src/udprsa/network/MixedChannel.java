@@ -18,7 +18,7 @@ public class MixedChannel  implements NetworkChannel {
 	}
 
 	public MixedChannel(String ip, int port, MessageReceiver receiver) throws IOException{
-		this(new DatagramSocket(port),new Socket(ip, port), receiver,InetAddress.getByName(ip));
+		this(new DatagramSocket(port+1),new Socket(ip, port), receiver,InetAddress.getByName(ip));
 	}
 
 	@Override
