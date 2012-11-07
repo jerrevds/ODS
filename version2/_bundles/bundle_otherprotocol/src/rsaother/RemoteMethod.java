@@ -9,7 +9,6 @@ import org.restlet.resource.ServerResource;
 public class RemoteMethod extends ServerResource implements IRemoteRestCall {
 
 	public Object doCall(Object[] args) {
-		System.out.println("testing doCall");
 		List<String> segments = getOriginalRef().getSegments();
 		Object service = RESTServiceAdmin.servicesByID.get(segments.get(0));
 		
