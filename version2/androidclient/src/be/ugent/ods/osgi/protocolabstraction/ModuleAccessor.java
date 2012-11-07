@@ -130,7 +130,7 @@ public class ModuleAccessor {
 		
 		// other...
 		properties = new HashMap<String, Object>();
-		properties.put("endpoint.id", "http://10.0.2.2:80/" + rosgitim_ids.get(c.getName()) + "/");
+		properties.put("endpoint.id", "http://10.0.2.2:8080/" + rosgitim_ids.get(c.getName()) + "/");
 		properties.put("service.imported.configs", "r-osgi-other");
 		properties.put("objectClass", new String[]{c.getName()});
 		properties.put("interface", c);

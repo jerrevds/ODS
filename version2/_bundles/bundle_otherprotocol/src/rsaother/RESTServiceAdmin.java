@@ -3,6 +3,7 @@ package rsaother;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.osgi.framework.BundleContext;
@@ -17,9 +18,13 @@ import org.osgi.service.remoteserviceadmin.RemoteServiceAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.restlet.Component;
+import org.restlet.Request;
+import org.restlet.Response;
 import org.restlet.Restlet;
+import org.restlet.Server;
 import org.restlet.data.Protocol;
 import org.restlet.resource.Get;
+import org.restlet.resource.ServerResource;
 
 import rsaother.exception.RESTException;
 
@@ -27,6 +32,8 @@ import rsaother.exception.RESTException;
  * Main class ... implements RemoteServiceAdmin
  */
 public class RESTServiceAdmin implements RemoteServiceAdmin {
+	
+	public static HashMap<String, Object> servicesByID;
 	
 	BundleContext context;
 	
@@ -41,7 +48,12 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		 * server opstarten
 		 */		
 		component = new Component();
-		component.getServers().add(Protocol.HTTP);
+		Server server = component.getServers().add(Protocol.HTTP, 8080);
+		try {
+			server.start();
+		} catch (Exception e1) {
+			throw new RESTException("Error starting the server", e1);
+		}
 		
 		/*
 		 * ServiceListener that automatically exports services with exported interfaces
@@ -85,39 +97,16 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		Object serviceObject = context.getService(reference);
 		Method[] methods = serviceObject.getClass().getMethods();
 		
+		String id = "" + reference.getProperty("service.id");
+		servicesByID.put(id, serviceObject);
+		
 		for(int i = 0; i < methods.length; i++) {
-			String URI = "/" + reference.getProperty("service.id") + "/" + RESTImportProxyHandler.methodToID(methods[i]);
+			String URI = "/" + id + "/" + RESTImportProxyHandler.methodToID(methods[i]);
 			
-			component.getDefaultHost().attach(URI, new RemoteMethode(serviceObject, methods[i]));
+			component.getDefaultHost().attach(URI, RemoteMethod.class);
 		}
-		
-		return null;// Sorry, not supported -Jeroen
-	}
-	
-	private class RemoteMethode extends Restlet implements IRemoteRestCall {
 
-		private Object service;
-		private Method method;
-		
-		public RemoteMethode(Object service, Method method) {
-			this.service = service;
-			this.method = method;
-		}
-		
-		@Get
-		public Object doCall(Object[] args) {
-			try {
-				return method.invoke(service, args);
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-		
+		return null;// Sorry, not supported -Jeroen
 	}
 
 	@Override
@@ -129,7 +118,6 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		
 		return proxyhandler.getImportRegistration(context, endpoint);
 	}
-	
 	
 	
 
