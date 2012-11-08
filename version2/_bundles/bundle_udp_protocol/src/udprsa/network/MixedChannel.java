@@ -28,25 +28,34 @@ public class MixedChannel  implements NetworkChannel {
 	private DatagramSocket udpSocket;
 	private ObjectOutputStream udpOutput;
 	private InetAddress ip;
-	private boolean connected;
+	private boolean connected = true;
 
 	public MixedChannel(DatagramSocket socketUDP, Socket socket, MessageReceiver receiver, InetAddress ip) throws IOException{
+		System.out.println("open channel:" + ip +"\n tcp: local port:" + socket.getLocalPort() +  " remote port: "+ socket.getPort() +"\n local ip: " + socket.getLocalSocketAddress().toString() +  " remote ip: " + socket.getRemoteSocketAddress().toString());
 		this.receiver = receiver;
 		this.ip=ip;
 		open(socketUDP, socket);
 		new TCPReceiverThread().start();
 		new UDPReceiverThread().start();
 	}
+	
+	public MixedChannel(DatagramSocket socketUDP, String ip, int port, MessageReceiver receiver) throws IOException{
+		this(socketUDP,new Socket(ip, port), receiver,InetAddress.getByName(ip));
+		System.out.println("open mixed channel: tcp port is" + port + " udp port is " + (port+1));
+		
+	}
 
 	private void open(DatagramSocket socketUDP, Socket socket) {
 		this.tcpSocket = socket;
 		try {
 			tcpSocket.setKeepAlive(true);
+			System.out.println("tcp alive is set");
 		} catch (final Throwable t) {
 			// for 1.2 VMs that do not support the setKeepAlive
 		}
 		try {
 			tcpSocket.setTcpNoDelay(true);
+			System.out.println("tcp delay is set");
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
@@ -54,11 +63,12 @@ public class MixedChannel  implements NetworkChannel {
 		// Maybe change to a more efficient serialization algorithm?
 		try {
 			tcpOutput = new ObjectOutputStream(new BufferedOutputStream(
-					socket.getOutputStream()));
+					tcpSocket.getOutputStream()));
 			
 			tcpOutput.flush();
-			tcpInput = new ObjectInputStream(new BufferedInputStream(socket
+			tcpInput = new ObjectInputStream(new BufferedInputStream(tcpSocket
 					.getInputStream()));
+			System.out.println("tcp streams are set");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -66,16 +76,13 @@ public class MixedChannel  implements NetworkChannel {
 		bos = new ByteArrayOutputStream(256);
 		try {
 			udpOutput = new ObjectOutputStream(bos);
+			System.out.println("udp streams are set");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public MixedChannel(String ip, int port, MessageReceiver receiver) throws IOException{
-		this(new DatagramSocket(port+1),new Socket(ip, port), receiver,InetAddress.getByName(ip));
-		System.out.println("open mixed channel: tcp port is" + port + " udp port is " + port+1);
-		
-	}
+
 
 	@Override
 	public String getRemoteAddress() {
@@ -90,15 +97,17 @@ public class MixedChannel  implements NetworkChannel {
 	@Override
 	public void sendMessage(ROSGiMessage message) throws IOException {
 		if(message instanceof RemoteCallMessage && (((RemoteCallMessage)message).isUDPEnabled())){
+			System.out.println("send udp");
 			message.send(udpOutput);
 			byte[] buffer = bos.toByteArray();
-			DatagramPacket packet =	new DatagramPacket(buffer,buffer.length,ip,udpSocket.getPort()); 
+			DatagramPacket packet =	new DatagramPacket(buffer,buffer.length,ip,udpSocket.getLocalPort()); 
 			bos.reset();
 			udpSocket.send(packet);
-			System.out.println("send udp");
+			System.out.println("udp sended");
 		}else{
 			System.out.println("send tcp");
 			message.send(tcpOutput);
+			System.out.println("tcp sended");
 		}
 		
 	}
@@ -107,6 +116,7 @@ public class MixedChannel  implements NetworkChannel {
 	public void close() {
 		try {
 			tcpSocket.close();
+			System.out.println("tcp closed");
 		} catch(IOException ioe){
 
 		}
@@ -126,7 +136,7 @@ public class MixedChannel  implements NetworkChannel {
 		public void run() {
 			while (connected) {
 				try {
-					
+					System.out.println("tcp receiving is started");
 					final ROSGiMessage msg = ROSGiMessage.parse(tcpInput);
 					receiver.receivedMessage(msg, MixedChannel.this);
 					System.out.println("receive tcp");

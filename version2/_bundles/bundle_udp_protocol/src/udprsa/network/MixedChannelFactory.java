@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 	private int listeningPortTcp = 9279;
 	private int listeningPortUdp = 9280;
 	private MixedAcceptorThread thread;
-	
+	private DatagramSocket socketUDP;
 	private Map<String, NetworkChannel> channels = new HashMap<String, NetworkChannel>();
 	
 	private MessageReceiver receiver;
@@ -36,8 +37,12 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 		this.networkInterface = networkInterface;
 		if(port!=-1){
 			this.listeningPortTcp = port;
-			//udp one higher than tcp
-			this.listeningPortUdp = port+1;
+		}
+		try {
+			socketUDP = new DatagramSocket(listeningPortUdp);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -64,10 +69,10 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 			if(channel == null) {
 				try {
 					
-					channel = new MixedChannel(uri.getIP(), uri.getPort(), receiver);
+					channel = new MixedChannel(socketUDP, uri.getIP(), uri.getPort(), receiver);
 					channels.put(channel.getRemoteAddress(), channel);
 				} catch(IOException ioe){
-					System.out.println("Failed to create UDP connection to "+uri);
+					System.out.println("Failed to create mixed connection to "+uri);
 					ioe.printStackTrace();
 				}
 			}
@@ -87,7 +92,7 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 	protected final class MixedAcceptorThread extends Thread {
 
 		private ServerSocket socketTCP;
-		private DatagramSocket socketUDP;
+
 		MixedAcceptorThread() throws IOException {
 			setDaemon(true);
 
@@ -113,6 +118,7 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 				try {
 					// accept incoming connections
 					Socket s = socketTCP.accept();
+					System.out.println("accept");
 					MixedChannel channel = new MixedChannel(socketUDP, s, receiver, s.getInetAddress());
 					synchronized(channels){
 						channels.put(channel.getRemoteAddress(), channel);

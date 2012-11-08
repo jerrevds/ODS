@@ -107,7 +107,7 @@ public final class RemoteCallMessage extends ROSGiMessage {
 	
 	public boolean isUDPEnabled(){
 		//TODO leen check op annotation in method
-		return false;
+		return true;
 	}
 	
 	

@@ -1,7 +1,10 @@
 package be.ugent.ods.osgi;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -91,6 +94,12 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		initButtonForRun(R.id.button_runtest_1, 1);
 		initButtonForRun(R.id.button_runtest_5, 5);
 		initButtonForRun(R.id.button_runtest_20, 20);
+		
+		
+	
+		
+		
+		
 	}
 	
 	/**
@@ -114,6 +123,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	 * run a test
 	 */
 	public void runTest(final TestInterface test,final int count) {
+
 		final FeedbackInterface feedback = this;
 		final MeasurementInterface measurement = new MeasurementTool();
 		mProgressDialog = new ProgressDialog(this);
