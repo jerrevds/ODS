@@ -97,22 +97,12 @@ public class MixedChannelFactory implements  NetworkChannelFactory{
 				try {
 					listeningPortTcp += e;
 					socketTCP = new ServerSocket(listeningPortTcp);
-					searching=false;
-				} catch (final BindException b) {
-					e++;
-				}
-			}
-			e=0;
-			searching=true;
-			while (searching) {
-				try {
-					listeningPortUdp += e;
-					socketUDP = new DatagramSocket(listeningPortUdp);
 					return;
 				} catch (final BindException b) {
 					e++;
 				}
 			}
+
 			
 		}
 		

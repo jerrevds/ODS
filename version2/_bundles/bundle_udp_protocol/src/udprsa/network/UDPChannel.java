@@ -59,6 +59,7 @@ public class UDPChannel implements NetworkChannel {
 		message.send(out);
 		byte[] buffer = bos.toByteArray();
 		DatagramPacket packet =	new DatagramPacket(buffer,buffer.length,ip,socket.getPort()); 
+		bos.reset();
 		socket.send(packet);
 
 	}

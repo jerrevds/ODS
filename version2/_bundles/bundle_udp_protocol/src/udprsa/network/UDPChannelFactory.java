@@ -13,9 +13,6 @@ import udprsa.util.URI;
 public class UDPChannelFactory  implements NetworkChannelFactory{
 
 
-	private String networkInterface = null;
-	//one more than the udp-bundle tcp port
-	private int listeningPort = 9280;
 
 	
 	private Map<String, NetworkChannel> channels = new HashMap<String, NetworkChannel>();
@@ -24,9 +21,7 @@ public class UDPChannelFactory  implements NetworkChannelFactory{
 	
 	public UDPChannelFactory(MessageReceiver receiver, String networkInterface, int port){
 		this.receiver = receiver;
-		this.networkInterface = networkInterface;
-		if(port!=-1)
-			this.listeningPort = port;
+	
 	}
 	
 	public void activate() throws IOException {
