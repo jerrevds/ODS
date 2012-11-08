@@ -105,6 +105,8 @@ public class MixedChannel implements NetworkChannel {
 	public void sendMessage(ROSGiMessage message) throws IOException {
 		if (message instanceof RemoteCallMessage
 				&& (((RemoteCallMessage) message).isUDPEnabled())) {
+			//	http://stackoverflow.com/questions/9203403/java-datagrampacket-udp-maximum-buffer-size
+			
 			System.out.println("send udp");
 			message.send(udpOutput);
 			byte[] buffer = bos.toByteArray();
@@ -126,7 +128,7 @@ public class MixedChannel implements NetworkChannel {
 			// then send payload
 			packet = new DatagramPacket(buffer, buffer.length, ip,
 					udpSocket.getLocalPort());
-
+		
 			udpSocket.send(packet);
 			//reset for headers
 			bos = new ByteArrayOutputStream();
@@ -200,13 +202,11 @@ public class MixedChannel implements NetworkChannel {
 					DatagramPacket packet = new DatagramPacket(data,
 							data.length);
 					udpSocket.receive(packet);
-
 					int len = 0;
 					// byte[] -> int
 					for (int i = 0; i < 4; ++i) {
 						len |= (data[3 - i] & 0xff) << (i << 3);
 					}
-
 					// now we know the length of the payload
 					byte[] buffer = new byte[len];
 					// then data
