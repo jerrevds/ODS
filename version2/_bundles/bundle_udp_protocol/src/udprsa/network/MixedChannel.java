@@ -17,6 +17,8 @@ import udprsa.network.api.MessageReceiver;
 import udprsa.network.api.NetworkChannel;
 import udprsa.network.message.ROSGiMessage;
 import udprsa.network.message.RemoteCallMessage;
+import udprsa.network.util.UDPReceiver;
+import udprsa.network.util.UDPSplitterSender;
 
 public class MixedChannel implements NetworkChannel {
 
@@ -29,6 +31,8 @@ public class MixedChannel implements NetworkChannel {
 	private ObjectOutputStream udpOutput;
 	private InetAddress ip;
 	private boolean connected = true;
+	private UDPSplitterSender udpSender;
+	private UDPReceiver udpReceiver;
 
 	public MixedChannel(DatagramSocket socketUDP, Socket socket,
 			MessageReceiver receiver, InetAddress ip) throws IOException {
@@ -41,6 +45,8 @@ public class MixedChannel implements NetworkChannel {
 		open(socketUDP, socket);
 		new TCPReceiverThread().start();
 		new UDPReceiverThread().start();
+		udpSender = new UDPSplitterSender(socketUDP, ip);
+		udpReceiver = new UDPReceiver(this);
 	}
 
 	public MixedChannel(DatagramSocket socketUDP, String ip, int port,
@@ -106,30 +112,11 @@ public class MixedChannel implements NetworkChannel {
 		if (message instanceof RemoteCallMessage
 				&& (((RemoteCallMessage) message).isUDPEnabled())) {
 			//	http://stackoverflow.com/questions/9203403/java-datagrampacket-udp-maximum-buffer-size
-			
+			// http://stackoverflow.com/questions/3997459/send-and-receive-serialize-object-on-udp-in-java)
 			System.out.println("send udp");
 			message.send(udpOutput);
 			byte[] buffer = bos.toByteArray();
-			
-			// first send length (code from
-			// http://stackoverflow.com/questions/3997459/send-and-receive-serialize-object-on-udp-in-java)
-			int number = buffer.length;
-			byte[] data = new byte[4];
-
-			// int -> byte[]
-			for (int i = 0; i < 4; ++i) {
-				int shift = i << 3; // i * 8
-				data[3 - i] = (byte) ((number & (0xff << shift)) >>> shift);
-			}
-			DatagramPacket packet = new DatagramPacket(data, 4, ip,
-					udpSocket.getLocalPort());
-			udpSocket.send(packet);
-
-			// then send payload
-			packet = new DatagramPacket(buffer, buffer.length, ip,
-					udpSocket.getLocalPort());
-		
-			udpSocket.send(packet);
+			udpSender.splitAndSend(buffer);
 			//reset for headers
 			bos = new ByteArrayOutputStream();
 			try {
@@ -198,37 +185,38 @@ public class MixedChannel implements NetworkChannel {
 			while (connected) {
 				try {
 					// first receive length
-					byte[] data = new byte[4];
+					byte[] data = new byte[UDPSplitterSender.FULLSIZE];
 					DatagramPacket packet = new DatagramPacket(data,
 							data.length);
 					udpSocket.receive(packet);
-					int len = 0;
-					// byte[] -> int
-					for (int i = 0; i < 4; ++i) {
-						len |= (data[3 - i] & 0xff) << (i << 3);
-					}
-					// now we know the length of the payload
-					byte[] buffer = new byte[len];
-					// then data
-					packet = new DatagramPacket(buffer, buffer.length);
-					udpSocket.receive(packet);
-					ByteArrayInputStream bin = new ByteArrayInputStream(packet.getData());
-					ObjectInputStream input = new ObjectInputStream(bin);
-					final ROSGiMessage msg = ROSGiMessage.parse(input);
-					receiver.receivedMessage(msg, MixedChannel.this);
-					System.out.println("receive udp");
-				} catch (final IOException ioe) {
-					ioe.printStackTrace();
-					System.out.println("lost connection udp");
-					connected = false;
-					udpSocket.close();
-					receiver.receivedMessage(null, MixedChannel.this);
-					return;
+					udpReceiver.received(data);
+					System.out.println("received udp");
 				} catch (final Throwable t) {
 					t.printStackTrace();
 				}
 			}
 		}
+	}
+
+	public void pushReady(byte[] asArray) {
+		ByteArrayInputStream bin = new ByteArrayInputStream(asArray);
+		ObjectInputStream input;
+		ROSGiMessage msg;
+		try {
+			input = new ObjectInputStream(bin);
+			msg = ROSGiMessage.parse(input);
+			receiver.receivedMessage(msg, this);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("lost connection udp");
+			connected = false;
+			udpReceiver.clear();
+			udpSocket.close();
+			receiver.receivedMessage(null, MixedChannel.this);
+			e.printStackTrace();
+		}
+		
 	}
 
 }
