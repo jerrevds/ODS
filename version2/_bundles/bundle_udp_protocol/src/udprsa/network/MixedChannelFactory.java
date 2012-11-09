@@ -2,10 +2,13 @@ package udprsa.network;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -16,29 +19,35 @@ import udprsa.network.api.NetworkChannel;
 import udprsa.network.api.NetworkChannelFactory;
 import udprsa.util.URI;
 
-/*
- * Factory for creating TCP Channels
- */
-public class TCPChannelFactory implements NetworkChannelFactory{
+public class MixedChannelFactory implements  NetworkChannelFactory{
+
 
 	private String networkInterface = null;
 	//one more than the tim-tcp port
-	private int listeningPort = 9279;
-	private TCPAcceptorThread thread;
-	
+	private int listeningPortTcp = 9279;
+	private int listeningPortUdp = 9280;
+	private MixedAcceptorThread thread;
+	private DatagramSocket socketUDP;
 	private Map<String, NetworkChannel> channels = new HashMap<String, NetworkChannel>();
 	
 	private MessageReceiver receiver;
 	
-	public TCPChannelFactory(MessageReceiver receiver, String networkInterface, int port){
+	public MixedChannelFactory(MessageReceiver receiver, String networkInterface, int port){
 		this.receiver = receiver;
 		this.networkInterface = networkInterface;
-		if(port!=-1)
-			this.listeningPort = port;
+		if(port!=-1){
+			this.listeningPortTcp = port;
+		}
+		try {
+			socketUDP = new DatagramSocket(listeningPortUdp);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void activate() throws IOException {
-		thread = new TCPAcceptorThread();
+		thread = new MixedAcceptorThread();
 		thread.start();
 	}
 
@@ -59,10 +68,11 @@ public class TCPChannelFactory implements NetworkChannelFactory{
 			NetworkChannel channel = channels.get(uri.getAddress());
 			if(channel == null) {
 				try {
-					channel = new TCPChannel(uri.getIP(), uri.getPort(), receiver);
+					
+					channel = new MixedChannel(socketUDP, uri.getIP(), uri.getPort(), receiver);
 					channels.put(channel.getRemoteAddress(), channel);
 				} catch(IOException ioe){
-					System.out.println("Failed to create TCP connection to "+uri);
+					System.out.println("Failed to create mixed connection to "+uri);
 					ioe.printStackTrace();
 				}
 			}
@@ -78,32 +88,38 @@ public class TCPChannelFactory implements NetworkChannelFactory{
 	}
 	
 	
-	// handles incoming tcp messages.
-	protected final class TCPAcceptorThread extends Thread {
+	// handles incoming udp and tcp messages.
+	protected final class MixedAcceptorThread extends Thread {
 
-		private ServerSocket socket;
+		private ServerSocket socketTCP;
 
-		TCPAcceptorThread() throws IOException {
+		MixedAcceptorThread() throws IOException {
 			setDaemon(true);
 
 			int e = 0;
-			while (true) {
+			boolean searching=true;
+			while (searching) {
 				try {
-					listeningPort += e;
-					socket = new ServerSocket(listeningPort);
+					listeningPortTcp += e;
+					socketTCP = new ServerSocket(listeningPortTcp);
 					return;
 				} catch (final BindException b) {
 					e++;
 				}
 			}
+
+			
 		}
+		
 
 
 		public void run() {
 			while (!isInterrupted()) {
 				try {
 					// accept incoming connections
-					TCPChannel channel = new TCPChannel(socket.accept(), receiver);
+					Socket s = socketTCP.accept();
+					System.out.println("accept");
+					MixedChannel channel = new MixedChannel(socketUDP, s, receiver, s.getInetAddress());
 					synchronized(channels){
 						channels.put(channel.getRemoteAddress(), channel);
 					}
@@ -112,6 +128,7 @@ public class TCPChannelFactory implements NetworkChannelFactory{
 					ioe.printStackTrace();
 				}
 			}
+			
 		}
 		
 		// method to try to get a currently valid ip of the host
@@ -138,9 +155,9 @@ public class TCPChannelFactory implements NetworkChannelFactory{
 			}catch(Exception e){}
 			//System.out.println(hostAddress);
 			if(hostAddress==null)
-				hostAddress = socket.getInetAddress().getHostAddress();
+				hostAddress = socketTCP.getInetAddress().getHostAddress();
 			
-			return hostAddress+":"+socket.getLocalPort();
+			return hostAddress+":"+socketTCP.getLocalPort();
 		}
 	}
 
@@ -150,4 +167,5 @@ public class TCPChannelFactory implements NetworkChannelFactory{
 			return thread.getListeningAddress();
 		return null;
 	}
+
 }

@@ -128,6 +128,15 @@ public class ModuleAccessor {
 		EndpointDescription endpoint = new EndpointDescription(properties);
 		endpoints.put(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM, endpoint);
 		
+		//r-osgi-tim-udp server
+		properties = new HashMap<String, Object>();
+		properties.put("endpoint.id", "r-osgi://10.0.2.2:9279#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+		//properties.put("endpoint.id", "r-osgi://192.168.2.5:9278#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+		properties.put("service.imported.configs", "r-osgi-udp");
+		properties.put("objectClass", new String[]{c.getName()});
+		endpoint = new EndpointDescription(properties);
+		endpoints.put(TestApplicationProtocolList.PROTOCOL_ROSGI_UDP, endpoint);
+		
 		// other...
 		properties = new HashMap<String, Object>();
 		properties.put("endpoint.id", "http://10.0.2.2:80/" + rosgitim_ids.get(c.getName()) + "/");
