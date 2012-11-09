@@ -42,6 +42,9 @@ public class UDPSplitterSender {
 			
 		}
 		id++;
+		if(id == Integer.MAX_VALUE){
+			id=0;
+		}
 	}
 	
 }
