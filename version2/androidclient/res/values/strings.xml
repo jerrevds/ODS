@@ -3,7 +3,7 @@
     <string name="app_name">OSGi</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">OSGi</string>
     <string name="local">local</string>
     <string name="dosgi">dosgi</string>
     <string name="button">Button</string>

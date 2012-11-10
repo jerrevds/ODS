@@ -82,7 +82,7 @@ public class ROSGiProxy implements InvocationHandler, ImportReference{
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
-		RemoteCallMessage invokeMsg = new RemoteCallMessage(serviceId, MethodSignature.getMethodSignature(method), args);
+		RemoteCallMessage invokeMsg = new RemoteCallMessage(serviceId, method, args);
 	
 		// equals and hashcode should be invoked on proxy object
 		// this enables to keep proxies in a list/map

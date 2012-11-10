@@ -40,6 +40,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import udprsa.exception.ROSGiException;
+import udprsa.network.MixedChannelFactory;
 import udprsa.network.TCPChannelFactory;
 import udprsa.network.api.MessageReceiver;
 import udprsa.network.api.MessageSender;
@@ -108,7 +109,7 @@ public class ROSGiServiceAdmin implements RemoteServiceAdmin, MessageReceiver, M
 		}
 		
 		try {
-			channelFactory = new TCPChannelFactory(this, networkInterface, port);
+			channelFactory = new MixedChannelFactory(this, networkInterface, port);
 			channelFactory.activate();
 		} catch(IOException e){
 			throw new ROSGiException("Failed to create Channel Factory", e);
