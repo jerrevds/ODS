@@ -11,7 +11,7 @@ public class RemoteMethod extends ServerResource implements IRemoteRestCall {
 	public Object doCall(Object[] args) {
 		List<String> segments = getOriginalRef().getSegments();
 		Object service = RESTServiceAdmin.servicesByID.get(segments.get(0));
-		
+		/*
 		Method method = null;
 		if(segments.size() > 2) {
 			Class[] argumentClasses = new Class[segments.size()-2];
@@ -64,7 +64,8 @@ public class RemoteMethod extends ServerResource implements IRemoteRestCall {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		}*/
+		Method method = RESTServiceAdmin.methodsByString.get(getOriginalRef());
 		
 		try {
 			return method.invoke(service, args);
