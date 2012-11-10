@@ -17,8 +17,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.MediaController;
-import android.widget.VideoView;
 import android.widget.ViewFlipper;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.interfaces.AbstractTest;
@@ -29,11 +27,9 @@ public class VideoTest extends AbstractTest {
 	private static final int CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE = 200;
 	protected Semaphore waitingForResult=new Semaphore(0);
 	private VideoService service;
-	private Uri videoUri;
+	private Uri videoUri = null;
 	
-	private int frame = 0;
 	private ArrayList<Bitmap> ar = null;
-	private ArrayList<byte[]> b = new ArrayList<byte[]>();
 	int begin = 0;
 	int einde = 0;
 	int width = 0;
@@ -41,7 +37,10 @@ public class VideoTest extends AbstractTest {
 	
 	private ArrayList<ArrayList<Bitmap>> resultmacroblocks;// = new ArrayList<ArrayList<Bitmap>>();
 	private ArrayList<Bitmap> frames = new ArrayList<Bitmap>();
-
+	
+	private ArrayList<ArrayList<byte[]>> bytesMacroblocks; // = new ArrayList<ArrayList<byte[]>>();
+	private ArrayList<ArrayList<byte[]>> result = null;
+	
 	@SuppressLint("NewApi")
 	@Override
 	public void runActivityForResult(int requestCode, int resultCode,
@@ -72,6 +71,40 @@ public class VideoTest extends AbstractTest {
 	    		for(int i=0;i< rev.size(); i++){
 	    			ar.set(i, rev.get(i));	    			
 	    		}
+	    		
+	    		//resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
+	    		bytesMacroblocks = new ArrayList<ArrayList<byte[]>>();
+	    		for(int frame = 0; frame<ar.size();frame++){
+	        		boolean done = false;
+	        		//resultmacroblocks.add(new ArrayList<Bitmap>());
+	        		bytesMacroblocks.add(new ArrayList<byte[]>());
+	        		Bitmap source = ar.get(frame);
+	        		width = source.getWidth();
+	        		height = source.getHeight();
+	        		while(!done){
+	                	Bitmap bm = Bitmap.createBitmap(source, begin, einde, 16, 16);
+	                	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	                	bm.compress(CompressFormat.PNG, 0, bos);
+	                	byte[] n = bos.toByteArray();
+	                	bytesMacroblocks.get(frame).add(n);
+	                	//byte[] result = service.doSomething(bm.getWidth(),bm.getHeight(),n);
+	                	//Bitmap nieuw = BitmapFactory.decodeByteArray(result, 0, result.length);
+	                	//resultmacroblocks.get(frame).add(nieuw);
+	                	begin += 16;
+	                	if(begin>=source.getWidth()){
+	                		begin = 0;
+	                		einde += 16;
+	                		if(einde>=source.getHeight()){
+	                			einde = 0;
+	                			done = true;
+	                		}
+	                	}
+	            		
+	            	}
+	        		Log.d("HELP","lengte van bytesMacroblocks" + bytesMacroblocks.size());
+	        	}
+	    		
+	    		
 				test();
 			} else if (resultCode == Activity.RESULT_CANCELED) {
 				Log.d("HELP", "hier2");
@@ -85,35 +118,15 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void test() {
-		resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
+		
 		for(int frame = 0; frame<ar.size();frame++){
-    		boolean done = false;
-    		resultmacroblocks.add(new ArrayList<Bitmap>());
-    		Bitmap source = ar.get(frame);
-    		Log.d("width,height",source.getWidth()+","+source.getHeight());
-    		width = source.getWidth();
-    		height = source.getHeight();
-    		while(!done){
-            	Bitmap bm = Bitmap.createBitmap(source, begin, einde, 16, 16);
-            	ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            	bm.compress(CompressFormat.PNG, 0, bos);
-            	byte[] n = bos.toByteArray();
-            	byte[] result = service.doSomething(bm.getWidth(),bm.getHeight(),n);
-            	Bitmap nieuw = BitmapFactory.decodeByteArray(result, 0, result.length);
-            	resultmacroblocks.get(frame).add(nieuw);
-            	//resultmacroblocks.get(frame).add(bm);
-            	begin += 16;
-            	if(begin>=source.getWidth()){
-            		begin = 0;
-            		einde += 16;
-            		if(einde>=source.getHeight()){
-            			einde = 0;
-            			done = true;
-            		}
-            	}
-        		
-        	}
+    		for(int lengte = 0; lengte < bytesMacroblocks.get(frame).size(); lengte++){
+    			Log.d("HELP","iets doorsturen");
+    			byte[] n = bytesMacroblocks.get(frame).get(lengte);
+    			service.doSomething(width,height,n,frame);
+    		}
     	}
+		result = service.getResult();		
 	}
 
 	@Override
@@ -121,23 +134,34 @@ public class VideoTest extends AbstractTest {
 		// create new Intent
 		service = (VideoService) accessor
 				.getModule(VideoService.class);
-		Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+		if(videoUri == null){
+			Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
 
-		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // set the video
-															// image quality to
-															// high
-		// start the Video Capture Intent
-		feedback.getActivity().startActivityForResult(intent,
-				CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
-		//wait
-		try {
-			waitingForResult.acquire();
-		} catch (InterruptedException e) {}
-
+			intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1); // set the video
+																// image quality to
+																// high
+			// start the Video Capture Intent
+			feedback.getActivity().startActivityForResult(intent,
+					CAPTURE_VIDEO_ACTIVITY_REQUEST_CODE);
+			//wait
+			try {
+				waitingForResult.acquire();
+			} catch (InterruptedException e) {}
+		}
 	}
 
 	@Override
 	public void postRun() {
+		resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
+		for(int frame = 0; frame<ar.size();frame++){
+    		resultmacroblocks.add(new ArrayList<Bitmap>());
+    		for(int lengte = 0; lengte < result.get(frame).size(); lengte++){
+    			byte[] r = result.get(frame).get(lengte);
+            	Bitmap nieuw = BitmapFactory.decodeByteArray(r, 0, r.length);
+            	resultmacroblocks.get(frame).add(nieuw); 
+    		}
+    		
+    	}
 		for(int frame = 0; frame<resultmacroblocks.size();frame++){
     		ArrayList<Bitmap> bmFrame = resultmacroblocks.get(frame);
         	Bitmap bmnieuw = Bitmap.createBitmap(width,height,bmFrame.get(0).getConfig());
