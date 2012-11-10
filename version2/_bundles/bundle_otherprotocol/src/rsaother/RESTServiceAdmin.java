@@ -34,6 +34,7 @@ import rsaother.exception.RESTException;
 public class RESTServiceAdmin implements RemoteServiceAdmin {
 	
 	public static HashMap<String, Object> servicesByID;
+	public static HashMap<String, Method> methodsByString;
 	
 	BundleContext context;
 	
@@ -48,6 +49,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		 * server opstarten
 		 */
 		servicesByID = new HashMap<String, Object>();
+		methodsByString = new HashMap<String, Method>();
 		
 		component = new Component();
 		Server server = component.getServers().add(Protocol.HTTP, 8080);
@@ -104,6 +106,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		
 		for(int i = 0; i < methods.length; i++) {
 			String URI = "/" + id + "/" + RESTImportProxyHandler.methodToID(methods[i]);
+			methodsByString.put(URI, methods[i]);
 			
 			component.getDefaultHost().attach(URI, RemoteMethod.class);
 		}
