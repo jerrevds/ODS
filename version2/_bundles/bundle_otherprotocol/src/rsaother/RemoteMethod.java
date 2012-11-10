@@ -17,7 +17,29 @@ public class RemoteMethod extends ServerResource implements IRemoteRestCall {
 			Class[] argumentClasses = new Class[segments.size()-2];
 			for(int i = 0; i < segments.size()-2; i++) {
 				try {
-					argumentClasses[i] = Class.forName(segments.get(i+2));
+					String type = segments.get(i+2);
+					Class claz = null;
+					if(type.equals("float")) {
+						claz = float.class;
+					} else if(type.equals("int")) {
+						claz = int.class;
+					} else if(type.equals("byte")) {
+						claz = byte.class;
+					} else if(type.equals("char")) {
+						claz = char.class;
+					} else if(type.equals("short")) {
+						claz = short.class;
+					} else if(type.equals("long")) {
+						claz = long.class;
+					} else if(type.equals("double")) {
+						claz = double.class;
+					} else if(type.equals("boolean")) {
+						claz = boolean.class;
+					} else {
+						claz = Class.forName(segments.get(i+2));
+					}
+					
+					argumentClasses[i] = claz;
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
