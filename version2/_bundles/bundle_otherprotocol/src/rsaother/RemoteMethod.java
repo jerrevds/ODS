@@ -65,7 +65,12 @@ public class RemoteMethod extends ServerResource implements IRemoteRestCall {
 				e.printStackTrace();
 			}
 		}*/
-		Method method = RESTServiceAdmin.methodsByString.get(getOriginalRef());
+		String id = "";
+		for(int i=0;i<segments.size();i++){
+			id+="/"+segments.get(i);
+		}
+		
+		Method method = RESTServiceAdmin.methodsByString.get(id);
 		
 		try {
 			return method.invoke(service, args);
