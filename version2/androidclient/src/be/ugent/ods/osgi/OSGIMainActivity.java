@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 import be.ugent.ods.osgi.felix.Config;
 import be.ugent.ods.osgi.felix.OSGiRuntime;
@@ -123,7 +124,11 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	 * run a test
 	 */
 	public void runTest(final TestInterface test,final int count) {
-
+		TextView runningview = new TextView(this);
+		runningview.setText("Started running test "+test.getClass().getName()+" "+count+" times...\nPlease wait...");
+		pushTestView(runningview);
+		
+		
 		final FeedbackInterface feedback = this;
 		final MeasurementInterface measurement = new MeasurementTool();
 		mProgressDialog = new ProgressDialog(this);
