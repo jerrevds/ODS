@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import be.ugent.ods.osgi.R;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.implementations.imagehelp.AndroidUtils;
@@ -45,7 +46,7 @@ public class GlowFilterTest extends AbstractTest {
 
 	@Override
 	public void postRun() {
-
+		if(mColors != null){
 		Bitmap mFilterBitmap = Bitmap.createBitmap(mColors, 0, width, width,
 				height, Bitmap.Config.ARGB_8888);
 		ImageView mModifyImageView = new ImageView(feedback.getActivity());
@@ -57,6 +58,9 @@ public class GlowFilterTest extends AbstractTest {
 		layout.addView(mOriginalImageView);
 		scrol.addView(layout);
 		feedback.pushTestView(scrol);
+		}else{
+			feedback.pushTestView(new TextView(feedback.getActivity()));
+		}
 
 	}
 

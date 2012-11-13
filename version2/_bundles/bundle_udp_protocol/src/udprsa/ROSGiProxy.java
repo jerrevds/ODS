@@ -96,7 +96,8 @@ public class ROSGiProxy implements InvocationHandler, ImportReference{
 			// send the message and get a RemoteCallResultMessage in return
 			RemoteCallResultMessage resultMsg = (RemoteCallResultMessage) sender.sendAndWaitMessage(invokeMsg, channel);
 			if (resultMsg.causedException()) {
-				throw resultMsg.getException();
+				//udp could mess things up
+				return null;
 			}
 			Object result = resultMsg.getResult();
 			return result;
@@ -105,7 +106,8 @@ public class ROSGiProxy implements InvocationHandler, ImportReference{
 			// For now just leave registration open and throw exception
 			// The one capturing the exception should is responsible for unregistering?
 			// unregister();
-			throw new ROSGiException("Error in remote method call "+method.getName(), e);
+			//udp could mess things up
+			return null;
 		}
 	}
 

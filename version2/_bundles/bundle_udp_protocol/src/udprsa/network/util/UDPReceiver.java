@@ -1,11 +1,15 @@
 package udprsa.network.util;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import udprsa.ROSGiServiceAdmin;
 import udprsa.network.MixedChannel;
+import udprsa.network.message.ROSGiMessage;
+import udprsa.network.message.RemoteCallUDPRCVMessage;
 
 public class UDPReceiver {
 
@@ -43,6 +47,14 @@ public class UDPReceiver {
 			isCleaning=true;
 			
 		}
+		RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(ROSGiMessage.UDP_RECEIVED);
+		receiveMessage.setId(id);
+		receiveMessage.setVolgnr(volgNr);
+		try {
+			channel.sendMessage(receiveMessage);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void pushReady(byte[] asArray) {
@@ -61,7 +73,7 @@ public class UDPReceiver {
 		public void run() {
 			while(buffer.size() !=0 && isCleaning){
 				try {
-					Thread.sleep(4000);
+					Thread.sleep(ROSGiServiceAdmin.TIMEOUT + 1000);
 				} catch (InterruptedException e) {
 					
 					e.printStackTrace();

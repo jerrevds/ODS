@@ -12,6 +12,7 @@ public abstract class ROSGiMessage {
 	
 	public static final short REMOTE_CALL = 5;
 	public static final short REMOTE_CALL_RESULT = 6;
+	public static final short UDP_RECEIVED = 7;
 	
 	private short funcID;
 	protected int xid;
@@ -57,6 +58,9 @@ public abstract class ROSGiMessage {
 			break;
 		case REMOTE_CALL_RESULT:
 			msg = new RemoteCallResultMessage(input);
+			break;
+		case UDP_RECEIVED:
+			msg = new RemoteCallUDPRCVMessage(input);
 			break;
 		default:
 			System.out.println("funcID " + funcID + " not supported."); 

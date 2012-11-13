@@ -17,6 +17,7 @@ import udprsa.network.api.MessageReceiver;
 import udprsa.network.api.NetworkChannel;
 import udprsa.network.message.ROSGiMessage;
 import udprsa.network.message.RemoteCallMessage;
+import udprsa.network.message.RemoteCallUDPRCVMessage;
 import udprsa.network.util.UDPReceiver;
 import udprsa.network.util.UDPSplitterSender;
 
@@ -33,6 +34,7 @@ public class MixedChannel implements NetworkChannel {
 	private boolean connected = true;
 	private UDPSplitterSender udpSender;
 	private UDPReceiver udpReceiver;
+	private boolean retrans = true;
 
 	public MixedChannel(DatagramSocket socketUDP, Socket socket,
 			MessageReceiver receiver, InetAddress ip) throws IOException {
@@ -45,7 +47,7 @@ public class MixedChannel implements NetworkChannel {
 		open(socketUDP, socket);
 		new TCPReceiverThread().start();
 		new UDPReceiverThread().start();
-		udpSender = new UDPSplitterSender(socketUDP, ip);
+		udpSender = new UDPSplitterSender(socketUDP, ip, this);
 		udpReceiver = new UDPReceiver(this);
 	}
 
@@ -106,7 +108,15 @@ public class MixedChannel implements NetworkChannel {
 		return tcpSocket.getLocalAddress().getHostAddress() + ":"
 				+ tcpSocket.getLocalPort();
 	}
+	
+	public boolean isConnected(){
+		return connected;
+	}
 
+	public boolean isRetransEnabled(){
+		return retrans;
+	}
+	
 	@Override
 	public void sendMessage(ROSGiMessage message) throws IOException {
 		if (message instanceof RemoteCallMessage
@@ -155,10 +165,17 @@ public class MixedChannel implements NetworkChannel {
 		public void run() {
 			while (connected) {
 				try {
-					System.out.println("tcp receiving is started");
+					//System.out.println("tcp receiving is started");
 					final ROSGiMessage msg = ROSGiMessage.parse(tcpInput);
-					receiver.receivedMessage(msg, MixedChannel.this);
-					System.out.println("receive tcp");
+					if(msg instanceof RemoteCallUDPRCVMessage){
+						RemoteCallUDPRCVMessage udprecv = (RemoteCallUDPRCVMessage)msg;
+						udpSender.PacketReceived(udprecv.getId(), udprecv.getVolgnr());
+						//System.out.println("receive ack");
+					}else{
+						receiver.receivedMessage(msg, MixedChannel.this);
+						System.out.println("receive tcp");
+					}
+					
 				} catch (final IOException ioe) {
 					System.out.println("lost connection tcp");
 					ioe.printStackTrace();

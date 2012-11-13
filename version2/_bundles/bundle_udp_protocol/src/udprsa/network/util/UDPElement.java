@@ -27,7 +27,9 @@ public class UDPElement {
 			count = i+1;
 		}
 		packets.put(i, data);
-		if(count !=0 && packets.size() == count){
+		old = false;
+		System.out.println("check for psuh=" + count + " is  size?" + packets.size() );
+		if(count !=0 && packets.size() == count && !isPushed){
 			isPushing=true;
 			receiver.pushReady(getAsArray());
 			isPushed=true;

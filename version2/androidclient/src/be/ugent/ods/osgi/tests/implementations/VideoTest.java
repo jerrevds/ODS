@@ -105,7 +105,7 @@ public class VideoTest extends AbstractTest {
 	        	}
 	    		
 	    		
-				test();
+			//	test();
 			} else if (resultCode == Activity.RESULT_CANCELED) {
 				Log.d("HELP", "hier2");
 			} else {
@@ -121,7 +121,7 @@ public class VideoTest extends AbstractTest {
 		
 		for(int frame = 0; frame<ar.size();frame++){
     		for(int lengte = 0; lengte < bytesMacroblocks.get(frame).size(); lengte++){
-    			Log.d("HELP","iets doorsturen");
+    			Log.d("HELP","iets doorsturen" + lengte);
     			byte[] n = bytesMacroblocks.get(frame).get(lengte);
     			service.doSomething(width,height,n,frame);
     		}
