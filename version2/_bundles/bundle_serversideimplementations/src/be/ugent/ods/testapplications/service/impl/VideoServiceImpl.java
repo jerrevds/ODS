@@ -2,7 +2,7 @@ package be.ugent.ods.testapplications.service.impl;
 
 import java.util.ArrayList;
 import be.ugent.ods.testapplications.service.interfaces.VideoService;
-
+import udprsa.annotation.UDP;
 
 public class VideoServiceImpl implements VideoService{
 
@@ -10,6 +10,7 @@ public class VideoServiceImpl implements VideoService{
 	int algframe = -1;
 
 	@Override
+	@UDP
 	public void doSomething(int width, int height, byte[] data, int frame) {
 		//
 		if(frame > algframe){
