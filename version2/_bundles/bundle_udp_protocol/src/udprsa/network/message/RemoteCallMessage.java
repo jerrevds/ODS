@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import udprsa.annotation.UDP;
 import udprsa.util.MethodSignature;
 
 public final class RemoteCallMessage extends ROSGiMessage {
@@ -106,8 +107,12 @@ public final class RemoteCallMessage extends ROSGiMessage {
 	
 	
 	public boolean isUDPEnabled(){
-		//TODO leen check op annotation in method
-		return true;
+		Method method = getMethod();
+		UDP udp = method.getAnnotation(UDP.class);
+		if(udp != null){
+			return true;
+		}
+		return false;
 	}
 	
 	

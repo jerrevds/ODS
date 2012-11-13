@@ -1,6 +1,5 @@
 package be.ugent.ods.testapplications.service.interfaces;
 
-import java.net.URI;
 import java.util.ArrayList;
 
 public interface VideoService{

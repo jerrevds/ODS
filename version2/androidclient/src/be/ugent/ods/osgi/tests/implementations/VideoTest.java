@@ -103,9 +103,6 @@ public class VideoTest extends AbstractTest {
 	            	}
 	        		Log.d("HELP","lengte van bytesMacroblocks" + bytesMacroblocks.size());
 	        	}
-	    		
-	    		
-				test();
 			} else if (resultCode == Activity.RESULT_CANCELED) {
 				Log.d("HELP", "hier2");
 			} else {
