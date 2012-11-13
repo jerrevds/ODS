@@ -4,6 +4,7 @@ public class Config {
 	
 public static final String EXPORTS=
 	"be.ugent.ods.testapplications.service.interfaces; "+
+	"udprsa.annotation; "+
 	
 	// also export compendium
 	"org.osgi.service.component;version=\"1.1\", "+

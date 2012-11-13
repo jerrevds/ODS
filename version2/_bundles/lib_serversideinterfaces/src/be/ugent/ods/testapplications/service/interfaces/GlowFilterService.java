@@ -1,5 +1,7 @@
 package be.ugent.ods.testapplications.service.interfaces;
 
+import udprsa.annotation.UDP;
+
 
 
 public interface GlowFilterService {
@@ -21,6 +23,7 @@ public interface GlowFilterService {
 	 */
 	public float getAmount();
 	
+	@UDP
     public int[] filter( int[] src ,int w, int h);
 
 	public String toString();
