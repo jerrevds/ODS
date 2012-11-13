@@ -1540,6 +1540,11 @@ public class ClientResource extends UniformResource {
         this.retryOnError = retryOnError;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T wrap(Class<? extends T> resourceInterface) {
+    	return wrap(resourceInterface, null);
+    }
+    
     /**
      * Wraps the client resource to proxy calls to the given Java interface into
      * Restlet method calls.
@@ -1550,7 +1555,7 @@ public class ClientResource extends UniformResource {
      * @return The proxy instance.
      */
     @SuppressWarnings("unchecked")
-    public <T> T wrap(Class<? extends T> resourceInterface) {
+    public <T> T wrap(Class<? extends T> resourceInterface, final Class<?> returnType) {
         T result = null;
 
         // Introspect the interface for Restlet annotations
@@ -1666,9 +1671,13 @@ public class ClientResource extends UniformResource {
 
                             if (!annotation.getJavaOutputType().equals(
                                     void.class)) {
-                                result = toObject((response == null ? null
-                                        : response.getEntity()),
-                                        annotation.getJavaOutputType());
+                            	if(returnType!=null){
+                            		result = toObject((response == null ? null: response.getEntity()), returnType);
+                            	}else{
+	                                result = toObject((response == null ? null
+	                                        : response.getEntity()),
+	                                        annotation.getJavaOutputType());
+                            	}
                             }
                         }
                     }
