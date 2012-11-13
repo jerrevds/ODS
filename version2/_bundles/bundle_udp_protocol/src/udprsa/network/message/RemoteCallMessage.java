@@ -111,10 +111,12 @@ public final class RemoteCallMessage extends ROSGiMessage {
 	
 	public boolean isUDPEnabled(){
 		Method method = getMethod();
-		UDP udp = null;
+		UDP udp = method.getAnnotation(UDP.class);
 		for(int i = 0;i<clazzes.length;i++){
 			UDP u;
 			try {
+				Annotation[] ann1 = clazzes[i].getMethod(method.getName(), method.getParameterTypes()).getAnnotations();
+				Annotation[] ann2 = clazzes[i].getMethod(method.getName(), method.getParameterTypes()).getDeclaredAnnotations();
 				u = clazzes[i].getMethod(method.getName(), method.getParameterTypes()).getAnnotation(UDP.class);
 				if(udp== null && u != null){
 					udp=u;

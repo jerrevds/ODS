@@ -19,7 +19,7 @@
                 org.osgi.util.tracker;version=&quot;[1.4,2)&quot;,
                 org.osgi.service.remoteserviceadmin;version=&quot;1.0.1&quot;, 
                 org.osgi.service.event;version=&quot;1.2&quot;, 
-                org.apache.felix.shell;resolution:=optional;version=&quot;1.0&quot;"/>
+                org.apache.felix.shell;resolution:=optional;version=&quot;1.0&quot;,be.ugent.ods.testapplications.service.impl"/>
             <attribute name="DynamicImport-Package" value="*"/>
            </manifest>
       </jar>

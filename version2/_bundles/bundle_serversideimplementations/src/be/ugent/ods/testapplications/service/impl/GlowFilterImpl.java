@@ -55,7 +55,7 @@ public class GlowFilterImpl extends GaussianFilter implements GlowFilterService 
 		return amount;
 	}
 	
-	@Override
+
 	@UDP
     public int[] filter( int[] src ,int w, int h) {
     	System.out.println("do image");

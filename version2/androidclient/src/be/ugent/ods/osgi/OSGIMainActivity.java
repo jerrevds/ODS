@@ -5,6 +5,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+import org.osgi.framework.BundleException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -42,6 +45,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	private Handler UIHandler;
 
 	private ProgressDialog mProgressDialog;
+	private ArrayList<org.osgi.framework.Bundle> bundles = new ArrayList<org.osgi.framework.Bundle>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			//startBundle("greeter_interface");
 			//startBundle("greeter_service");
 			startBundle("serversideimplementations", R.raw.serversideimplementations);
+			startAll();
 			
 		}
 		
@@ -103,6 +108,17 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		
 	}
 	
+	private void startAll() {
+		for(org.osgi.framework.Bundle bundle : bundles){
+			try {
+				bundle.start();
+			} catch (BundleException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+
 	/**
 	 * start a bundle
 	 */
@@ -112,7 +128,7 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		try {
 			org.osgi.framework.Bundle b = OSGiRuntime.getOSGiRuntime()
 					.getBundleContext().installBundle(name + ".jar", is);
-			b.start();
+			bundles.add(b);
 			System.out.println("Bundle " + name + " with id "+b.getBundleId()+" starting");
 		} catch (Exception e) {
 			System.out.println("Error starting bundle " + name);
