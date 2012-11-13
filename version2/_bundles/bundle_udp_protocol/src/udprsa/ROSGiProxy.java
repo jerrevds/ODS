@@ -36,6 +36,7 @@ public class ROSGiProxy implements InvocationHandler, ImportReference{
 	private MessageSender sender;
 	
 	private int refCount = 0;
+	private Class[] clazzes;
 	
 	private ROSGiProxy(EndpointDescription endpointDescription, NetworkChannel channel, String serviceId, MessageSender sender){
 		this.endpointDescription = endpointDescription;
@@ -73,16 +74,31 @@ public class ROSGiProxy implements InvocationHandler, ImportReference{
 				}
 			}
 			p.registration = context.registerService(clazzNames, proxy, properties);
+			p.setClasses(clazzes);
 		} catch (ClassNotFoundException e) {
 			throw new ROSGiException("Error loading class of service proxy", e);
 		}
 		return p;
 	}
 	
+	private void setClasses(Class[] clazzes) {
+		this.clazzes = clazzes;
+		
+	}
+	
+
+	
+	
+	public Class[] getClazzes() {
+		return clazzes;
+	}
+
+	
+
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
-		RemoteCallMessage invokeMsg = new RemoteCallMessage(serviceId, method, args);
+		RemoteCallMessage invokeMsg = new RemoteCallMessage(serviceId, method, args, getClazzes());
 	
 		// equals and hashcode should be invoked on proxy object
 		// this enables to keep proxies in a list/map

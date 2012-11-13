@@ -3,6 +3,7 @@ package udprsa.network.message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -15,13 +16,15 @@ public final class RemoteCallMessage extends ROSGiMessage {
 	private String methodSignature;
 	private Object[] arguments;
 	private Method method;
+	private Class[] clazzes;
 
-	public RemoteCallMessage(String serviceID, Method method, Object[] args) {
+	public RemoteCallMessage(String serviceID, Method method, Object[] args, Class[] classes) {
 		super(REMOTE_CALL);
 		this.method=method;
 		this.serviceID = serviceID;
 		this.methodSignature = MethodSignature.getMethodSignature(method);
 		this.arguments = args;
+		this.clazzes = classes;
 	}
 	
 	/**
@@ -108,7 +111,21 @@ public final class RemoteCallMessage extends ROSGiMessage {
 	
 	public boolean isUDPEnabled(){
 		Method method = getMethod();
-		UDP udp = method.getAnnotation(UDP.class);
+		UDP udp = null;
+		for(int i = 0;i<clazzes.length;i++){
+			UDP u;
+			try {
+				u = clazzes[i].getMethod(method.getName(), method.getParameterTypes()).getAnnotation(UDP.class);
+				if(udp== null && u != null){
+					udp=u;
+				}
+			} catch (NoSuchMethodException e) {
+				
+			} catch (SecurityException e) {
+				
+			}
+			
+		}
 		if(udp != null){
 			return true;
 		}

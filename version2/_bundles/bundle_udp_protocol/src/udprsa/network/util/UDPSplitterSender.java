@@ -23,10 +23,11 @@ public class UDPSplitterSender {
 	public static final int SIZE = 560;
 	public static final int FULLSIZE = 569;
 
-
+	private ReentrantLock lock = new ReentrantLock(true);
 	private MixedChannel channel;
 	private HashMap<Integer, HashMap<Integer, DatagramPacket>> sendBuffer;
-	//private Random rand;
+
+	// private Random rand;
 
 	public UDPSplitterSender(DatagramSocket udpSocket, InetAddress ip,
 			MixedChannel channel) {
@@ -41,7 +42,7 @@ public class UDPSplitterSender {
 			t.start();
 		}
 		// test purpose
-		//rand = new Random();
+		// rand = new Random();
 	}
 
 	public void splitAndSend(byte[] array) throws IOException {
@@ -73,12 +74,12 @@ public class UDPSplitterSender {
 
 			DatagramPacket packet = new DatagramPacket(sending, sending.length,
 					ip, udpSocket.getLocalPort());
-		//	if (rand.nextInt(100) > 3) {
-			if(i % 500 != 0){
+			// if (rand.nextInt(100) > 3) {
+		//	if (i % 500 != 0) {
 				udpSocket.send(packet);
-			} else {
-				System.out.println("Send failed on test purpose for " + i);
-			}
+			//} else {
+			//	System.out.println("Send failed on test purpose for " + i);
+			//}
 			if (channel.isRetransEnabled()) {
 				packetBuffer.put(i, packet);
 			}
@@ -88,13 +89,12 @@ public class UDPSplitterSender {
 	}
 
 	public void PacketReceived(int id, int packet) {
-
+		lock.lock();
 		if (sendBuffer.get(id) != null) {
-			System.out.println("ack for id " + id + " and volgnr "+ packet);
+			//System.out.println("ack for id " + id + " and volgnr " + packet);
 			sendBuffer.get(id).remove(packet);
-
 		}
-		
+		lock.unlock();
 	}
 
 	class ResendThread extends Thread {
@@ -106,19 +106,22 @@ public class UDPSplitterSender {
 				// lock.lock();
 				for (Integer id : sendTimings.keySet()) {
 					System.out.println("check resending for id " + id);
-					if (System.currentTimeMillis() - sendTimings.get(id) > 3000) {
-					
+					if (System.currentTimeMillis() - sendTimings.get(id) > 4000) {
+						lock.lock();
 						HashMap<Integer, DatagramPacket> packetBuffer = (HashMap<Integer, DatagramPacket>) sendBuffer
 								.get(id).clone();
-						System.out.println("packet buffer for id " + id + " is size " + packetBuffer.size());
+						lock.unlock();
+						System.out.println("packet buffer for id " + id
+								+ " is size " + packetBuffer.size());
 
 						for (DatagramPacket packet : packetBuffer.values()) {
 							if (packet != null) {
 								try {
 									udpSocket.send(packet);
-								/*	System.out.println("resend for" + id
-											+ " end volgnr =" + key + "in run "
-											+ run);*/
+									/*
+									 * System.out.println("resend for" + id +
+									 * " end volgnr =" + key + "in run " + run);
+									 */
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
@@ -134,12 +137,13 @@ public class UDPSplitterSender {
 						toRemove.add(id);
 					}
 				}
-				
+				lock.lock();
 				for (Integer id : toRemove) {
 					sendBuffer.remove(id);
 					sendTimings.remove(id);
 				}
-				
+				lock.unlock();
+
 				try {
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
