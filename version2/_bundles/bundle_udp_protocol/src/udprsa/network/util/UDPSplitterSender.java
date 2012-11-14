@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
 import udprsa.ROSGiServiceAdmin;
 import udprsa.network.MixedChannel;
@@ -20,11 +19,9 @@ public class UDPSplitterSender {
 	private ConcurrentHashMap<Integer, Long> sendTimings;
 	public static final int SIZE = 560;
 	public static final int FULLSIZE = 569;
-	private Semaphore semaphore = new Semaphore(1);
+
 	private MixedChannel channel;
 	private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, DatagramPacket>> sendBuffer;
-
-	// private Random rand;
 
 	public UDPSplitterSender(DatagramSocket udpSocket, InetAddress ip,
 			MixedChannel channel) {
@@ -59,8 +56,10 @@ public class UDPSplitterSender {
 		if (id == Integer.MAX_VALUE - 10) {
 			id = 0;
 		}
-		sendBuffer.put(sendID, new ConcurrentHashMap<Integer, DatagramPacket>());
-		ConcurrentHashMap<Integer, DatagramPacket> packetBuffer = sendBuffer.get(sendID);
+		if (channel.isRetransEnabled()) {
+			//if we won't lock, we get ack's before they are added (due rehashes etc), so lock it up to avoid unnec. resends
+			sendBuffer.put(sendID, new ConcurrentHashMap<Integer, DatagramPacket>());
+		}
 		for (int i = 0; i < (array.length / SIZE) + roundingCorrection; i++) {
 			byte[] idArray = ByteBuffer.allocate(4).putInt(sendID).array();
 			byte[] volgnrArray = ByteBuffer.allocate(4).putInt(i).array();
@@ -72,19 +71,19 @@ public class UDPSplitterSender {
 			System.arraycopy(endArray, 0, sending, 8, 1);
 			int length = Math.min(SIZE, array.length - (i * SIZE));
 			System.arraycopy(array, i * SIZE, sending, 9, length);
-			// test purpose
-
 			DatagramPacket packet = new DatagramPacket(sending, sending.length,
 					ip, udpSocket.getLocalPort());
-			udpSocket.send(packet);
 			if (channel.isRetransEnabled()) {
-				lock();
-				packetBuffer.put(i, packet);
-				unlock();
+				//store before send to avoid weird shizle that we have an ack before it is in the map
+				sendBuffer.get(sendID).put(i, packet);
 			}
+			udpSocket.send(packet);
+			
 		}
+		
 		// only put timing if ready (when not put, no resending will occure
 		sendTimings.put(sendID, System.currentTimeMillis());
+		
 	}
 
 /**
@@ -93,12 +92,12 @@ public class UDPSplitterSender {
  * @param packet the following number of a packet in the udp stream
  * this will remove the packet from te buffer
  */
-	public void PacketReceived(int id, int packet) {
-		lock();
+	public void PacketReceived(int id, Integer packet) {
+		//we have to take lock so we can have map and are sure that in sending there are no concurent actions that would mess all up while rehashing
+	
 		if (sendBuffer.get(id) != null) {
 			sendBuffer.get(id).remove(packet);
 		}
-		unlock();
 	}
 
 	
@@ -119,7 +118,7 @@ public class UDPSplitterSender {
 					if (System.currentTimeMillis() - sendTimings.get(id) > 4000) {
 						System.out.println("packet buffer for id " + id + " is size " + sendBuffer.get(id).size());
 						//for all packets (if packet = ack's, it is removed
-						lock();
+						//just reading, no specific lock needed here, due concurentmap no problems reading while possible removing
 						for (DatagramPacket packet : sendBuffer.get(id).values()) {
 							if (packet != null) {
 								try {
@@ -130,7 +129,6 @@ public class UDPSplitterSender {
 								}
 							}
 						}
-						unlock();
 						//remove empty buffers (all is send)
 						if (sendBuffer.get(id).isEmpty()) {
 							toRemove.add(id);
@@ -145,13 +143,9 @@ public class UDPSplitterSender {
 
 				//remove timings of sent buffers
 				for (Integer id : toRemove) {
-					lock();
 					sendBuffer.remove(id);
 					sendTimings.remove(id);
-					unlock();
 				}
-
-
 				try {
 					//just sleep so that new ack's could come in
 					Thread.sleep(3000);
@@ -163,16 +157,5 @@ public class UDPSplitterSender {
 		}
 	}
 	
-	public void lock(){
-		try {
-			semaphore.acquire();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void unlock(){
-		semaphore.release();
-	}
+
 }

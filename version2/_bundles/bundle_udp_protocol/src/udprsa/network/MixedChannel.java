@@ -30,7 +30,6 @@ public class MixedChannel implements NetworkChannel {
 	private ByteArrayOutputStream bos;
 	private DatagramSocket udpSocket;
 	private ObjectOutputStream udpOutput;
-	private InetAddress ip;
 	private boolean connected = true;
 	private UDPSplitterSender udpSender;
 	private UDPReceiver udpReceiver;
@@ -43,7 +42,6 @@ public class MixedChannel implements NetworkChannel {
 				+ "\n local ip: " + socket.getLocalSocketAddress().toString()
 				+ " remote ip: " + socket.getRemoteSocketAddress().toString());
 		this.receiver = receiver;
-		this.ip = ip;
 		open(socketUDP, socket);
 		new TCPReceiverThread().start();
 		new UDPReceiverThread().start();
