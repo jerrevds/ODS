@@ -5,6 +5,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
+/**
+ * udp element to keep in receiver. this will concat all the udp elements from the same stream
+ * @author jerrevds
+ *
+ */
 public class UDPElement {
 	
 
@@ -15,6 +20,10 @@ public class UDPElement {
 	private boolean isPushing;
 	private boolean isPushed;
 
+	/**
+	 * simple constructor, receiver needed for push
+	 * @param receiver
+	 */
 	public UDPElement(UDPReceiver receiver){
 		packets = new HashMap<Integer, byte[]>();
 		old = false;
@@ -22,6 +31,12 @@ public class UDPElement {
 		this.receiver=receiver;
 	}
 	
+	/**
+	 * push a packet to this stream
+	 * @param i volgnummer in the stream
+	 * @param data the data
+	 * @param isLast is it the last packet? (needed to count and push)
+	 */
 	public void addPacket(int i, byte[] data, boolean isLast){
 		if(isLast){
 			count = i+1;
@@ -29,13 +44,19 @@ public class UDPElement {
 		packets.put(i, data);
 		old = false;
 		System.out.println("check for psuh=" + count + " is  size?" + packets.size() );
+		
 		if(count !=0 && packets.size() == count && !isPushed){
+			//last packet is received and we havn't pushed our object yet, push it (ispushed needed because of multithreading and resending where double resends could occure
 			isPushing=true;
 			receiver.pushReady(getAsArray());
 			isPushed=true;
 		}
 	}
 
+	/**
+	 * get all the packets as one array in correct order
+	 * @return
+	 */
 	private byte[] getAsArray() {
 		byte[] array = new byte[count*UDPSplitterSender.SIZE];
 		Set<Integer> ids = packets.keySet();
@@ -46,15 +67,24 @@ public class UDPElement {
 		}
 		return array;
 	}
-
+/**
+ * is marked as old? (ready to remove)
+ * @return
+ */
 	public boolean isOld() {
 		return old;
 	}
-
+/**
+ * set old status for GC
+ * @param old
+ */
 	public void setOld(boolean old) {
 		this.old = old;
 	}
-
+/**
+ * is busy with pushing?
+ * @return
+ */
 	public boolean isPushing() {
 		return isPushing;
 	}
@@ -62,7 +92,10 @@ public class UDPElement {
 	public void setPushing(boolean isPushing) {
 		this.isPushing = isPushing;
 	}
-
+/**
+ * is packet pushed?
+ * @return
+ */
 	public boolean isPushed() {
 		return isPushed;
 	}

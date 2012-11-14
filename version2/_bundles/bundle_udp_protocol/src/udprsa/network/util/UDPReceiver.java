@@ -57,16 +57,26 @@ public class UDPReceiver {
 		}
 	}
 	
+	/**
+	 * push byte array of object as ready to channel for proxy handling
+	 * @param asArray
+	 */
 	public void pushReady(byte[] asArray) {
 		channel.pushReady(asArray);
 	}
-	
+	/**
+	 * clear
+	 */
 	public void clear(){
 		buffer.clear();
 	}
 
 	
-	
+	/**
+	 * GC thread to clean buffer if packets are located there to loong. buffer time is the same as the 2* time on which a timeout at sender side would occure
+	 * @author jerrevds
+	 *
+	 */
 	class GarbageCollector extends Thread{
 		
 		@Override
@@ -83,10 +93,13 @@ public class UDPReceiver {
 				for(Integer id : keys){
 					UDPElement element = buffer.get(id);
 					if(element.isOld() && ! element.isPushing()){
+						//too old, remove, sender is closed already by timeout
 						buffer.remove(id);
 					}else if(element.isPushed()){
+						//is psuhed, we don't need to keep it here
 						buffer.remove(id);
 					}else{
+						//passed first run, set as old
 						element.setOld(true);
 					}
 				}

@@ -6,12 +6,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
+import udprsa.ROSGiServiceAdmin;
 import udprsa.network.MixedChannel;
 
 public class UDPSplitterSender {
@@ -19,13 +17,12 @@ public class UDPSplitterSender {
 	private DatagramSocket udpSocket;
 	private int id;
 	private InetAddress ip;
-	private HashMap<Integer, Long> sendTimings;
+	private ConcurrentHashMap<Integer, Long> sendTimings;
 	public static final int SIZE = 560;
 	public static final int FULLSIZE = 569;
-
-	private ReentrantLock lock = new ReentrantLock(true);
+	private Semaphore semaphore = new Semaphore(1);
 	private MixedChannel channel;
-	private HashMap<Integer, HashMap<Integer, DatagramPacket>> sendBuffer;
+	private ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, DatagramPacket>> sendBuffer;
 
 	// private Random rand;
 
@@ -34,8 +31,8 @@ public class UDPSplitterSender {
 		this.udpSocket = udpSocket;
 		id = 0;
 		this.ip = ip;
-		this.sendTimings = new HashMap<Integer, Long>();
-		this.sendBuffer = new HashMap<Integer, HashMap<Integer, DatagramPacket>>();
+		this.sendTimings = new ConcurrentHashMap<Integer, Long>();
+		this.sendBuffer = new ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, DatagramPacket>>();
 		this.channel = channel;
 		if (channel.isRetransEnabled()) {
 			Thread t = new ResendThread();
@@ -45,6 +42,11 @@ public class UDPSplitterSender {
 		// rand = new Random();
 	}
 
+	/**
+	 * sends an udp stream. If the array is to long, the array will be split up in multiple packets
+	 * @param array byte array to send
+	 * @throws IOException
+	 */
 	public void splitAndSend(byte[] array) throws IOException {
 		int roundingCorrection = 1;
 		if (array.length % SIZE == 0) {
@@ -57,8 +59,8 @@ public class UDPSplitterSender {
 		if (id == Integer.MAX_VALUE - 10) {
 			id = 0;
 		}
-		sendBuffer.put(sendID, new HashMap<Integer, DatagramPacket>());
-		HashMap<Integer, DatagramPacket> packetBuffer = sendBuffer.get(sendID);
+		sendBuffer.put(sendID, new ConcurrentHashMap<Integer, DatagramPacket>());
+		ConcurrentHashMap<Integer, DatagramPacket> packetBuffer = sendBuffer.get(sendID);
 		for (int i = 0; i < (array.length / SIZE) + roundingCorrection; i++) {
 			byte[] idArray = ByteBuffer.allocate(4).putInt(sendID).array();
 			byte[] volgnrArray = ByteBuffer.allocate(4).putInt(i).array();
@@ -74,77 +76,84 @@ public class UDPSplitterSender {
 
 			DatagramPacket packet = new DatagramPacket(sending, sending.length,
 					ip, udpSocket.getLocalPort());
-			// if (rand.nextInt(100) > 3) {
-		//	if (i % 500 != 0) {
-				udpSocket.send(packet);
-			//} else {
-			//	System.out.println("Send failed on test purpose for " + i);
-			//}
+			udpSocket.send(packet);
 			if (channel.isRetransEnabled()) {
+				lock();
 				packetBuffer.put(i, packet);
+				unlock();
 			}
 		}
 		// only put timing if ready (when not put, no resending will occure
 		sendTimings.put(sendID, System.currentTimeMillis());
 	}
 
+/**
+ * ack method for packets
+ * @param id the id of the udp stream
+ * @param packet the following number of a packet in the udp stream
+ * this will remove the packet from te buffer
+ */
 	public void PacketReceived(int id, int packet) {
-		lock.lock();
+		lock();
 		if (sendBuffer.get(id) != null) {
-			//System.out.println("ack for id " + id + " and volgnr " + packet);
 			sendBuffer.get(id).remove(packet);
 		}
-		lock.unlock();
+		unlock();
 	}
 
+	
+	/**
+	 * class responsibel to create a minor form of retransmission
+	 * @author jerrevds
+	 *
+	 */
 	class ResendThread extends Thread {
 
 		@Override
 		public void run() {
 			while (channel.isConnected() && channel.isRetransEnabled()) {
 				ArrayList<Integer> toRemove = new ArrayList<Integer>();
-				// lock.lock();
+				//check if send occured long enough ago (give time to receive ack)
 				for (Integer id : sendTimings.keySet()) {
 					System.out.println("check resending for id " + id);
 					if (System.currentTimeMillis() - sendTimings.get(id) > 4000) {
-						lock.lock();
-						HashMap<Integer, DatagramPacket> packetBuffer = (HashMap<Integer, DatagramPacket>) sendBuffer
-								.get(id).clone();
-						lock.unlock();
-						System.out.println("packet buffer for id " + id
-								+ " is size " + packetBuffer.size());
-
-						for (DatagramPacket packet : packetBuffer.values()) {
+						System.out.println("packet buffer for id " + id + " is size " + sendBuffer.get(id).size());
+						//for all packets (if packet = ack's, it is removed
+						lock();
+						for (DatagramPacket packet : sendBuffer.get(id).values()) {
 							if (packet != null) {
 								try {
+									//resend
 									udpSocket.send(packet);
-									/*
-									 * System.out.println("resend for" + id +
-									 * " end volgnr =" + key + "in run " + run);
-									 */
 								} catch (IOException e) {
 									e.printStackTrace();
 								}
 							}
 						}
-						if (packetBuffer.isEmpty()) {
+						unlock();
+						//remove empty buffers (all is send)
+						if (sendBuffer.get(id).isEmpty()) {
 							toRemove.add(id);
 						}
 					}
-					if (System.currentTimeMillis() - sendTimings.get(id) > 40000) {
+					if (System.currentTimeMillis() - sendTimings.get(id) > ROSGiServiceAdmin.TIMEOUT) {
 						// something fuckd up realy hard, just ignore it
 						// (probably lost connection)
 						toRemove.add(id);
 					}
 				}
-				lock.lock();
+
+				//remove timings of sent buffers
 				for (Integer id : toRemove) {
+					lock();
 					sendBuffer.remove(id);
 					sendTimings.remove(id);
+					unlock();
 				}
-				lock.unlock();
+
 
 				try {
+					//just sleep so that new ack's could come in
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 					System.out.println("resend sleep interupt" + e.toString());
@@ -152,5 +161,18 @@ public class UDPSplitterSender {
 				}
 			}
 		}
+	}
+	
+	public void lock(){
+		try {
+			semaphore.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void unlock(){
+		semaphore.release();
 	}
 }
