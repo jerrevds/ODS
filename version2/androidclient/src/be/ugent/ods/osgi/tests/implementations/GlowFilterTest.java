@@ -36,7 +36,7 @@ public class GlowFilterTest extends AbstractTest {
 	@Override
 	public void preRun(ModuleAccessor accessor) {
 		mOriginalImageView = new ImageView(feedback.getActivity());
-		mOriginalImageView.setImageResource(R.drawable.image);
+		mOriginalImageView.setImageResource(R.drawable.i1mb);
 		mColors = AndroidUtils.drawableToIntArray(mOriginalImageView
 				.getDrawable());
 		glow = accessor.getModule(GlowFilterService.class);
