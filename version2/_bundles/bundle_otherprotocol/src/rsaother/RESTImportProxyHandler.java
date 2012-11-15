@@ -53,6 +53,7 @@ public class RESTImportProxyHandler implements InvocationHandler {
 		
 		// Call
 		Object returnObject = resource.doCall(arg2);
+		cr.release();
 		
 		// return
 		return returnObject;
