@@ -23,6 +23,7 @@ import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
+import org.restlet.resource.ClientResource;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
@@ -35,6 +36,8 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	
 	public static HashMap<String, Object> servicesByID;
 	public static HashMap<String, Method> methodsByString;
+	
+	public static HashMap<String, ClientResource> clientsByString;
 	
 	BundleContext context;
 	
@@ -116,6 +119,10 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 
 	@Override
 	public ImportRegistration importService(EndpointDescription endpoint) {
+		if(clientsByString == null) {
+			clientsByString = new HashMap<String, ClientResource>();
+		}
+		
 		Class<?> interfaceClass = (Class<?>) endpoint.getProperties().get("interface");
 		String baseUrl = endpoint.getId();
 		

@@ -48,12 +48,17 @@ public class RESTImportProxyHandler implements InvocationHandler {
 		String urlfortheobject = baseUrl+methodToID(arg1);
 		
 		// Get the IRemoteRestCall object for this method...
-		ClientResource cr = new ClientResource(urlfortheobject);
+		ClientResource cr = RESTServiceAdmin.clientsByString.get(urlfortheobject);
+		if(cr == null) {
+			cr = new ClientResource(urlfortheobject);
+			RESTServiceAdmin.clientsByString.put(urlfortheobject, cr);
+		}
 		IRemoteRestCall resource = cr.wrap(IRemoteRestCall.class, arg1.getReturnType());
 		
 		// Call
 		Object returnObject = resource.doCall(arg2);
-		cr.release();
+		cr.getResponseEntity().exhaust();
+		cr.getResponseEntity().release();
 		
 		// return
 		return returnObject;

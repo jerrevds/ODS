@@ -125,6 +125,7 @@ public class VideoTest extends AbstractTest {
     			byte[] n = bytesMacroblocks.get(frame).get(lengte);
     			service.doSomething(width,height,n,frame);
     		}
+    		Log.d("HELP","next frame: " + frame);
     	}
 		result = service.getResult();		
 	}
