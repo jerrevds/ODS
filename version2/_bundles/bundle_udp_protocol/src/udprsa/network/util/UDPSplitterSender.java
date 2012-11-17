@@ -38,6 +38,7 @@ public class UDPSplitterSender {
 		// test purpose
 		// rand = new Random();
 	}
+	
 
 	/**
 	 * sends an udp stream. If the array is to long, the array will be split up in multiple packets
@@ -115,7 +116,7 @@ public class UDPSplitterSender {
 				//check if send occured long enough ago (give time to receive ack)
 				for (Integer id : sendTimings.keySet()) {
 					System.out.println("check resending for id " + id);
-					if (System.currentTimeMillis() - sendTimings.get(id) > 4000) {
+					if (System.currentTimeMillis() - sendTimings.get(id) > 2000) {
 						System.out.println("packet buffer for id " + id + " is size " + sendBuffer.get(id).size());
 						//for all packets (if packet = ack's, it is removed
 						//just reading, no specific lock needed here, due concurentmap no problems reading while possible removing
@@ -148,7 +149,7 @@ public class UDPSplitterSender {
 				}
 				try {
 					//just sleep so that new ack's could come in
-					Thread.sleep(3000);
+					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					System.out.println("resend sleep interupt" + e.toString());
 					e.printStackTrace();

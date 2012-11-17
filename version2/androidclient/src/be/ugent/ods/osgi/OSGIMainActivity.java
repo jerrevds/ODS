@@ -11,9 +11,12 @@ import org.osgi.framework.BundleException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,11 +50,15 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	private ProgressDialog mProgressDialog;
 	private ArrayList<org.osgi.framework.Bundle> bundles = new ArrayList<org.osgi.framework.Bundle>();
 
+	private WakeLock wl;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+		//wakelock to keep device awake while testing
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		 wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "OSGi");
 		// INIT FELIX
 		Config.HOME_DIR = getFilesDir().getAbsolutePath();
 		
@@ -100,13 +107,23 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		initButtonForRun(R.id.button_runtest_1, 1);
 		initButtonForRun(R.id.button_runtest_5, 5);
 		initButtonForRun(R.id.button_runtest_20, 20);
-		
-		
-	
-		
-		
-		
 	}
+	
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		wl.acquire();
+	}
+	
+	@Override
+	protected void onPause() {
+		
+		super.onPause();
+		wl.release();
+	}
+	
 	
 	private void startAll() {
 		for(org.osgi.framework.Bundle bundle : bundles){
