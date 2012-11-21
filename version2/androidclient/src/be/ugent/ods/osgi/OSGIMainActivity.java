@@ -52,6 +52,8 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 
 	private WakeLock wl;
 
+	private ArrayList<TestInterface> tests;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -87,15 +89,20 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		
 		
 		//DEFAULTS
-		currenttest = new EchoTest();
+		tests = new ArrayList<TestInterface>();
+		tests.add(new EchoTest());
+		tests.add(new GlowFilterTest());
+		tests.add(new VideoTest());
+		currenttest = tests.get(0);
 		accessor.setUseRSAModule(TestApplicationProtocolList.PROTOCOL_LOCAL);
 		
 		
 		// MAKE THE BUTTONS WORK
 		int[] testButtons = new int[] {R.id.toggleButton_echo, R.id.toggleButton_image, R.id.toggleButton_video};
-		initButtonForTest(R.id.toggleButton_echo, new EchoTest(), testButtons); //echo test button
-		initButtonForTest(R.id.toggleButton_image, new GlowFilterTest()/*TODO*/, testButtons); //image test button
-		initButtonForTest(R.id.toggleButton_video, new VideoTest()/*TODO*/, testButtons); //video test button
+
+		initButtonForTest(R.id.toggleButton_echo, tests.get(0), testButtons); //echo test button
+		initButtonForTest(R.id.toggleButton_image, tests.get(1), testButtons); //image test button
+		initButtonForTest(R.id.toggleButton_video, tests.get(2), testButtons); //video test button
 		
 		int[] rsaButtons = new int[]{R.id.toggleButton_local, R.id.toggleButton_rosgi, R.id.toggleButton_udp, R.id.toggleButton_other};
 		initButtonForRSA(R.id.toggleButton_local, TestApplicationProtocolList.PROTOCOL_LOCAL, rsaButtons);
@@ -107,10 +114,31 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		initButtonForRun(R.id.button_runtest_1, 1);
 		initButtonForRun(R.id.button_runtest_5, 5);
 		initButtonForRun(R.id.button_runtest_20, 20);
+		initSizebutton();
 	}
 	
 	
 	
+	private void initSizebutton() {
+		final Button sizeButton = (Button)findViewById(R.id.button_size);
+		sizeButton.setOnClickListener(new OnClickListener() {
+			private int size = 0;
+			@Override
+			public void onClick(View v) {
+				size++;
+				size=size%3;
+				for(int i=0;i<tests.size();i++){
+					tests.get(i).changeSize(size);
+				}
+				sizeButton.setText("s="+size);
+				
+			}
+		});
+		
+	}
+
+
+
 	@Override
 	protected void onResume() {
 		super.onResume();

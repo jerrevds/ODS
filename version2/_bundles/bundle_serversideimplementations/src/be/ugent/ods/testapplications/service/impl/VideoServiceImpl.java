@@ -28,8 +28,7 @@ public class VideoServiceImpl implements VideoService{
 
 	@Override
 	public ArrayList<ArrayList<byte[]>> getResult() {
-		// TODO Auto-generated method stub
-		
+
 		return result;
 	}
 

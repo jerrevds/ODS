@@ -10,4 +10,6 @@ public interface TestInterface {
 	
 	void runActivityForResult(int requestCode, int resultCode, Intent data);
 	
+	void changeSize(int size);
+	
 }

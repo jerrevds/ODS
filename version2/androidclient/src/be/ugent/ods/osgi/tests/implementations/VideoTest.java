@@ -217,4 +217,11 @@ public class VideoTest extends AbstractTest {
 		return "video";
 	}
 
+	@Override
+	public void changeSize(int size) {
+		//change for size, just set on null so new record can be made
+		videoUri = null;
+		
+	}
+
 }
