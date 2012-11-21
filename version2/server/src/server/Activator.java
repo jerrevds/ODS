@@ -124,7 +124,7 @@ public class Activator implements BundleActivator {
 	
 	private void registerAllServicesToRSA(BundleContext context, RemoteServiceAdmin service){
 		for(Class<?> serverModuleClass: TestApplicationExternalModulesList.modules) {
-			Map<String, String> props = new HashMap<>();
+			Map<String, String> props = new HashMap<String, String>();
 			
 			final ServiceTracker moduleTracker = new ServiceTracker(context, serverModuleClass, null);
 			moduleTracker.open();
