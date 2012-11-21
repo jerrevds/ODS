@@ -21,5 +21,6 @@
     <string name="run5">5x</string>
     <string name="run20">20x</string>
     <string name="protocol_other">other</string>
+    <string name="s_0">s=0</string>
 
 </resources>

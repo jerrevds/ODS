@@ -17,7 +17,11 @@ public class GlowFilterTest extends AbstractTest {
 	private ImageView mOriginalImageView;
 	private int width;
 	private int height;
+	private int size;
 
+	public GlowFilterTest() {
+		this.size = 0;
+	}
 
 	private float getAmout(int value) {
 		float retValue = 0;
@@ -27,6 +31,7 @@ public class GlowFilterTest extends AbstractTest {
 
 	@Override
 	public void test() {
+	
 		glow.setAmount(getAmout(70));
 		glow.setRadius(70);
 		mColors = glow.filter(mColors, width, height);
@@ -36,7 +41,13 @@ public class GlowFilterTest extends AbstractTest {
 	@Override
 	public void preRun(ModuleAccessor accessor) {
 		mOriginalImageView = new ImageView(feedback.getActivity());
-		mOriginalImageView.setImageResource(R.drawable.i1mb);
+		if (size == 0) {
+			mOriginalImageView.setImageResource(R.drawable.i23kb);
+		} else if (size == 1) {
+			mOriginalImageView.setImageResource(R.drawable.i420kb);
+		} else {
+			mOriginalImageView.setImageResource(R.drawable.i1mb);
+		}
 		mColors = AndroidUtils.drawableToIntArray(mOriginalImageView
 				.getDrawable());
 		glow = accessor.getModule(GlowFilterService.class);
@@ -46,19 +57,19 @@ public class GlowFilterTest extends AbstractTest {
 
 	@Override
 	public void postRun() {
-		if(mColors != null){
-		Bitmap mFilterBitmap = Bitmap.createBitmap(mColors, 0, width, width,
-				height, Bitmap.Config.ARGB_8888);
-		ImageView mModifyImageView = new ImageView(feedback.getActivity());
-		ScrollView scrol = new ScrollView(feedback.getActivity());
-		mModifyImageView.setImageBitmap(mFilterBitmap);
-		LinearLayout layout = new LinearLayout(feedback.getActivity());
-		layout.setOrientation(LinearLayout.VERTICAL);
-		layout.addView(mModifyImageView);
-		layout.addView(mOriginalImageView);
-		scrol.addView(layout);
-		feedback.pushTestView(scrol);
-		}else{
+		if (mColors != null) {
+			Bitmap mFilterBitmap = Bitmap.createBitmap(mColors, 0, width,
+					width, height, Bitmap.Config.ARGB_8888);
+			ImageView mModifyImageView = new ImageView(feedback.getActivity());
+			ScrollView scrol = new ScrollView(feedback.getActivity());
+			mModifyImageView.setImageBitmap(mFilterBitmap);
+			LinearLayout layout = new LinearLayout(feedback.getActivity());
+			layout.setOrientation(LinearLayout.VERTICAL);
+			layout.addView(mModifyImageView);
+			layout.addView(mOriginalImageView);
+			scrol.addView(layout);
+			feedback.pushTestView(scrol);
+		} else {
 			feedback.pushTestView(new TextView(feedback.getActivity()));
 		}
 
@@ -67,6 +78,12 @@ public class GlowFilterTest extends AbstractTest {
 	@Override
 	public String getName() {
 		return "image";
+	}
+
+	@Override
+	public void changeSize(int size) {
+		this.size = size;
+
 	}
 
 }

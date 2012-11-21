@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
     </LinearLayout>
-
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -26,21 +26,13 @@
             android:id="@+id/linearLayout3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
-
+
             <TextView
                 android:id="@+id/textView1"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:text="@string/test_group" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
 
             <ToggleButton
                 android:id="@+id/toggleButton_echo"
@@ -62,6 +54,12 @@
                 android:layout_height="wrap_content"
                 android:textOff="@string/video"
                 android:textOn="@string/video" />
+
+            <Button
+                android:id="@+id/button_size"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="@string/s_0" />
         </LinearLayout>
 
         <LinearLayout
@@ -96,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:textOff="@string/udp"
                 android:textOn="@string/udp" />
-
+
             <ToggleButton
                 android:id="@+id/toggleButton_other"
                 android:layout_width="60dp"
@@ -104,7 +102,6 @@
                 android:text="@string/protocol_other"
                 android:textOff="@string/protocol_other"
                 android:textOn="@string/protocol_other" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -117,27 +114,25 @@
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="@string/run_group" />
-
+
             <Button
                 android:id="@+id/button_runtest_1"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="@string/run1" />
-
+
             <Button
                 android:id="@+id/button_runtest_5"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="@string/run5" />
-
+
             <Button
                 android:id="@+id/button_runtest_20"
                 android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="@string/run20" />
-
         </LinearLayout>
-
     </LinearLayout>
 
 </RelativeLayout>
