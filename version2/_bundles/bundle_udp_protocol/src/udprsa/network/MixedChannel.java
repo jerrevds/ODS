@@ -33,6 +33,7 @@ public class MixedChannel implements NetworkChannel {
 	private boolean connected = true;
 	private UDPSplitterSender udpSender;
 	private UDPReceiver udpReceiver;
+	//as retrans is false, try to do as much as possible by udp and close all that isn't needed 
 	private boolean retrans = true;
 
 	public MixedChannel(DatagramSocket socketUDP, Socket socket,
@@ -168,7 +169,6 @@ public class MixedChannel implements NetworkChannel {
 					if(msg instanceof RemoteCallUDPRCVMessage){
 						RemoteCallUDPRCVMessage udprecv = (RemoteCallUDPRCVMessage)msg;
 						udpSender.PacketReceived(udprecv.getId(), udprecv.getVolgnr());
-						//System.out.println("receive ack");
 					}else{
 						receiver.receivedMessage(msg, MixedChannel.this);
 						System.out.println("receive tcp");

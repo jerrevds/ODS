@@ -40,6 +40,7 @@ public class VideoTest extends AbstractTest {
 	
 	private ArrayList<ArrayList<byte[]>> bytesMacroblocks; // = new ArrayList<ArrayList<byte[]>>();
 	private ArrayList<ArrayList<byte[]>> result = null;
+	private int size;
 	
 	@SuppressLint("NewApi")
 	@Override
@@ -119,9 +120,9 @@ public class VideoTest extends AbstractTest {
 	@Override
 	public void test() {
 		
-		for(int frame = 0; frame<ar.size();frame++){
+		for(int frame = 0; frame<ar.size() && frame <= size;frame++){
     		for(int lengte = 0; lengte < bytesMacroblocks.get(frame).size(); lengte++){
-    			Log.d("HELP","iets doorsturen" + lengte);
+    			//Log.d("HELP","iets doorsturen" + lengte);
     			byte[] n = bytesMacroblocks.get(frame).get(lengte);
     			service.doSomething(width,height,n,frame);
     		}
@@ -153,17 +154,18 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void postRun() {
+		frames.clear();
 		resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
-		for(int frame = 0; frame<ar.size();frame++){
+		for(int frame = 0; frame<ar.size() && frame <= size;frame++){
     		resultmacroblocks.add(new ArrayList<Bitmap>());
-    		for(int lengte = 0; lengte < result.get(frame).size(); lengte++){
+    		for(int lengte = 0; lengte < result.get(frame).size() ; lengte++){
     			byte[] r = result.get(frame).get(lengte);
             	Bitmap nieuw = BitmapFactory.decodeByteArray(r, 0, r.length);
             	resultmacroblocks.get(frame).add(nieuw); 
     		}
     		
     	}
-		for(int frame = 0; frame<resultmacroblocks.size();frame++){
+		for(int frame = 0; frame<resultmacroblocks.size() && frame <= size;frame++){
     		ArrayList<Bitmap> bmFrame = resultmacroblocks.get(frame);
         	Bitmap bmnieuw = Bitmap.createBitmap(width,height,bmFrame.get(0).getConfig());
     		Canvas canvas = new Canvas(bmnieuw);
@@ -219,8 +221,7 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void changeSize(int size) {
-		//change for size, just set on null so new record can be made
-		videoUri = null;
+		this.size=size;
 		
 	}
 
