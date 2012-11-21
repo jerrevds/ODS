@@ -53,6 +53,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 		 */
 		servicesByID = new HashMap<String, Object>();
 		methodsByString = new HashMap<String, Method>();
+		clientsByString = new HashMap<String, ClientResource>();
 		
 		component = new Component();
 		Server server = component.getServers().add(Protocol.HTTP, 8080);
@@ -118,11 +119,7 @@ public class RESTServiceAdmin implements RemoteServiceAdmin {
 	}
 
 	@Override
-	public ImportRegistration importService(EndpointDescription endpoint) {
-		if(clientsByString == null) {
-			clientsByString = new HashMap<String, ClientResource>();
-		}
-		
+	public ImportRegistration importService(EndpointDescription endpoint) {		
 		Class<?> interfaceClass = (Class<?>) endpoint.getProperties().get("interface");
 		String baseUrl = endpoint.getId();
 		
