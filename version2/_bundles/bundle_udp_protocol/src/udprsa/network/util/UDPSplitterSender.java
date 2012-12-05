@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import udprsa.ROSGiServiceAdmin;
@@ -38,15 +39,18 @@ public class UDPSplitterSender {
 		// test purpose
 		// rand = new Random();
 	}
-	
 
 	/**
-	 * sends an udp stream. If the array is to long, the array will be split up in multiple packets
-	 * @param array byte array to send
+	 * sends an udp stream. If the array is to long, the array will be split up
+	 * in multiple packets
+	 * 
+	 * @param array
+	 *            byte array to send
 	 * @throws IOException
 	 */
 	public void splitAndSend(byte[] array) throws IOException {
 		int roundingCorrection = 1;
+		System.out.println("end size is:" + array.length);
 		if (array.length % SIZE == 0) {
 			// no correction for rounding down needed
 			roundingCorrection = 0;
@@ -58,54 +62,60 @@ public class UDPSplitterSender {
 			id = 0;
 		}
 		if (channel.isRetransEnabled()) {
-			//if we won't lock, we get ack's before they are added (due rehashes etc), so lock it up to avoid unnec. resends
-			sendBuffer.put(sendID, new ConcurrentHashMap<Integer, DatagramPacket>());
+			// if we won't lock, we get ack's before they are added (due
+			// rehashes etc), so lock it up to avoid unnec. resends
+			sendBuffer.put(sendID,
+					new ConcurrentHashMap<Integer, DatagramPacket>());
 		}
 		for (int i = 0; i < (array.length / SIZE) + roundingCorrection; i++) {
 			byte[] idArray = ByteBuffer.allocate(4).putInt(sendID).array();
 			byte[] volgnrArray = ByteBuffer.allocate(4).putInt(i).array();
 			byte[] endArray = new byte[] { (byte) (i == (array.length / SIZE)
 					+ roundingCorrection - 1 ? 1 : 0) };
-			byte[] sending = new byte[FULLSIZE];
+			int length = Math.min(SIZE, array.length - (i * SIZE));
+			byte[] sending;
+			if (length == SIZE) {
+				//System.out.println("udp max sent");
+				sending = new byte[FULLSIZE];
+			} else {
+				System.out.println("udp smaller, only send "
+						+ ((FULLSIZE - SIZE) + length));
+				sending = new byte[(FULLSIZE - SIZE) + length];
+			}
+
+			// adapt size if is smaller
 			System.arraycopy(idArray, 0, sending, 0, 4);
 			System.arraycopy(volgnrArray, 0, sending, 4, 4);
 			System.arraycopy(endArray, 0, sending, 8, 1);
-			int length = Math.min(SIZE, array.length - (i * SIZE));
+
 			System.arraycopy(array, i * SIZE, sending, 9, length);
 			DatagramPacket packet = new DatagramPacket(sending, sending.length,
 					ip, udpSocket.getLocalPort());
 			if (channel.isRetransEnabled()) {
-				//store before send to avoid weird shizle that we have an ack before it is in the map
+				// store before send to avoid weird shizle that we have an ack
+				// before it is in the map
 				sendBuffer.get(sendID).put(i, packet);
 			}
-			udpSocket.send(packet);
-			
+			// test
+		//	Random rand = new Random();
+			//if (rand.nextInt(100) > 20) {
+				udpSocket.send(packet);
+			//}else{
+			//	System.out.println("lost:" + i);
+			//}
+
 		}
-		
+
 		// only put timing if ready (when not put, no resending will occure
 		sendTimings.put(sendID, System.currentTimeMillis());
-		
+
 	}
 
-/**
- * ack method for packets
- * @param id the id of the udp stream
- * @param packet the following number of a packet in the udp stream
- * this will remove the packet from te buffer
- */
-	public void PacketReceived(int id, Integer packet) {
-		//we have to take lock so we can have map and are sure that in sending there are no concurent actions that would mess all up while rehashing
-	
-		if (sendBuffer.get(id) != null) {
-			sendBuffer.get(id).remove(packet);
-		}
-	}
-
-	
 	/**
 	 * class responsibel to create a minor form of retransmission
+	 * 
 	 * @author jerrevds
-	 *
+	 * 
 	 */
 	class ResendThread extends Thread {
 
@@ -113,43 +123,40 @@ public class UDPSplitterSender {
 		public void run() {
 			while (channel.isConnected() && channel.isRetransEnabled()) {
 				ArrayList<Integer> toRemove = new ArrayList<Integer>();
-				//check if send occured long enough ago (give time to receive ack)
+				// check if send occured long enough ago (give time to receive
+				// ack)
 				for (Integer id : sendTimings.keySet()) {
-					System.out.println("check resending for id " + id);
-					if (System.currentTimeMillis() - sendTimings.get(id) > 2000) {
-						System.out.println("packet buffer for id " + id + " is size " + sendBuffer.get(id).size());
-						//for all packets (if packet = ack's, it is removed
-						//just reading, no specific lock needed here, due concurentmap no problems reading while possible removing
-						for (DatagramPacket packet : sendBuffer.get(id).values()) {
-							if (packet != null) {
-								try {
-									//resend
-									udpSocket.send(packet);
-								} catch (IOException e) {
-									e.printStackTrace();
-								}
-							}
-						}
-						//remove empty buffers (all is send)
-						if (sendBuffer.get(id).isEmpty()) {
-							toRemove.add(id);
-						}
-					}
+					// System.out.println("check resending for id " + id);
 					if (System.currentTimeMillis() - sendTimings.get(id) > ROSGiServiceAdmin.TIMEOUT) {
-						// something fuckd up realy hard, just ignore it
-						// (probably lost connection)
+						// cleanup
 						toRemove.add(id);
+					}
+					if (System.currentTimeMillis() - sendTimings.get(id) > 1500
+							&& sendBuffer.get(id).get(0) != null) {
+						// still no ack, womething is probably fucked up or the
+						// stream is only one packet big (resend)
+						System.out.println("udp: auto resend:" + id);
+						try {
+							// resend can ask to much
+
+							udpSocket.send((DatagramPacket) sendBuffer.get(id)
+									.get(0));
+
+						} catch (IOException e) {
+
+							e.printStackTrace();
+						}
 					}
 				}
 
-				//remove timings of sent buffers
+				// remove timings of sent buffers
 				for (Integer id : toRemove) {
 					sendBuffer.remove(id);
 					sendTimings.remove(id);
 				}
 				try {
-					//just sleep so that new ack's could come in
-					Thread.sleep(2000);
+					// just sleep so that new ack's could come in
+					Thread.sleep(1500);
 				} catch (InterruptedException e) {
 					System.out.println("resend sleep interupt" + e.toString());
 					e.printStackTrace();
@@ -157,6 +164,22 @@ public class UDPSplitterSender {
 			}
 		}
 	}
-	
+
+	public void resend(int id, int volgnr) {
+		System.out.println("udp: resend:" + id + " volgnr " + volgnr);
+		if(volgnr == -1){
+			sendBuffer.get(id).remove(0);
+		}
+		try {
+			// resend can ask to much
+			if (sendBuffer.get(id).get(volgnr) != null) {
+				udpSocket.send((DatagramPacket) sendBuffer.get(id).get(volgnr));
+			}
+		} catch (IOException e) {
+
+			e.printStackTrace();
+		}
+
+	}
 
 }

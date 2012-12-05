@@ -168,7 +168,7 @@ public class MixedChannel implements NetworkChannel {
 					final ROSGiMessage msg = ROSGiMessage.parse(tcpInput);
 					if(msg instanceof RemoteCallUDPRCVMessage){
 						RemoteCallUDPRCVMessage udprecv = (RemoteCallUDPRCVMessage)msg;
-						udpSender.PacketReceived(udprecv.getId(), udprecv.getVolgnr());
+						udpSender.resend(udprecv.getId(), udprecv.getVolgnr());
 					}else{
 						receiver.receivedMessage(msg, MixedChannel.this);
 						System.out.println("receive tcp");
@@ -210,6 +210,7 @@ public class MixedChannel implements NetworkChannel {
 					t.printStackTrace();
 				}
 			}
+			udpReceiver.close();
 		}
 	}
 
