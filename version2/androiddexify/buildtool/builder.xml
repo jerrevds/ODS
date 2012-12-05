@@ -66,7 +66,6 @@
   		<copy file="../libraries/libs/rosgi-tim-dependencies/osgi.core-4.3.0.jar" tofile="${libsplacedir}/osgi.core-4.3.0.jar"/>-->
   		
   		
-  		
   		<echo message="Next step = dexifying." />
   		<echo message="IF IT RETURNS 1 MAKE SURE dx AND aapt ARE IN YOUR CLASSPATH" />
   		
@@ -75,6 +74,10 @@
           <arg value="/c" />
           <arg value="buildtool\dexify.bat" />
       </exec>
+      
+  		<!-- COPY SOUND -->
+  		<copy file="sound/sounderr.wav" tofile="${bundleplacedir}/sounderr.wav"/>
+  		<copy file="sound/soundok.wav" tofile="${bundleplacedir}/soundok.wav"/>
       
   </target>
   

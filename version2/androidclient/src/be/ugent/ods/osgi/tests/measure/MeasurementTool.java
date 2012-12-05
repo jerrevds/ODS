@@ -14,6 +14,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import be.ugent.ods.osgi.OSGIMainActivity;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
@@ -73,6 +75,11 @@ public class MeasurementTool implements MeasurementInterface {
 			this.dataT = TrafficStats.getUidTxBytes(appinfo.uid);
 			this.packetsT = TrafficStats.getUidTxPackets(appinfo.uid);
 		}
+		
+		if(OSGIMainActivity.currentTestName!=null){
+			type = OSGIMainActivity.currentTestName;
+		}
+		
 		this.context = context;
 		this.type = type;
 		this.started = true;

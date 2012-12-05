@@ -8,6 +8,11 @@ public class VideoServiceImpl implements VideoService{
 
 	private ArrayList<ArrayList<byte[]>> result= new ArrayList<ArrayList<byte[]>>();
 	int algframe = -1;
+	
+	public void clear(){
+		result = new ArrayList<ArrayList<byte[]>>();
+		algframe = -1;
+	}
 
 	@Override
 	public void doSomething(int width, int height, byte[] data, int frame) {

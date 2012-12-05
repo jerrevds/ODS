@@ -2,6 +2,7 @@ package be.ugent.ods.osgi;
 
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,6 +14,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
@@ -53,6 +56,10 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	private WakeLock wl;
 
 	private ArrayList<TestInterface> tests;
+	
+	private SoundPool pool;
+	private int sound_ok;
+	private int sound_err;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,13 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			startAll();
 			
 		}
+		
+		// SOUND
+		pool = new SoundPool(10, AudioManager.STREAM_ALARM, 0);
+		
+		sound_ok = pool.load(getApplicationContext(), R.raw.soundok, 1);
+		sound_err = pool.load(getApplicationContext(), R.raw.sounderr, 1);
+		
 		
 		
 		// CREATE RSA MANAGER
@@ -115,8 +129,145 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		initButtonForRun(R.id.button_runtest_5, 5);
 		initButtonForRun(R.id.button_runtest_20, 20);
 		initSizebutton();
+		
+		
+		
+		// AUTOMATIC CONFIG
+		Button button = (Button) findViewById(R.id.button_auto_run);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				autoInfo("AutoMeasure Starting...");
+				onAutoMeasure();
+				autoWait();
+				autoInfo("AutoMeasure Done...");
+			}
+		});
+		
+		button = (Button) findViewById(R.id.button_auto_config);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onAutoConfig();
+			}
+		});
+		
+		button = (Button) findViewById(R.id.button_auto_ping);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				autoInfo("ping to 192.168.56.30");
+				String result = ping();
+				autoInfo(result);
+			}
+		});
 	}
 	
+	private void autoWait() {
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {}
+	}
+	
+	private void autoInfo(String info) {
+		TextView view = (TextView)findViewById(R.id.auto_info);
+		view.setText(info);
+	}
+	
+	private void doButton(int id) {
+		Button button = (Button) findViewById(id);
+		button.performClick();
+		try{
+			Thread.sleep(1000);
+		}catch (InterruptedException e) {}
+	}
+	
+	public static String currentTestName = null;
+	
+	private void onAutoMeasure() {
+		while(accessor.autoMeasureHasNext()) {
+			accessor.autoMeasureStartMeasure();
+			String[] settings = accessor.autoMeasureGetCurrentSettings().split(" ");
+			String test = settings[0];
+			String protocol = settings[1];
+			int size = Integer.parseInt(settings[2]);
+			String name = settings[3];
+			
+			currentTestName = name;
+			
+			autoInfo("AutoMeasure: Running: "+currentTestName);
+			
+			if(test.equals("echo")) {
+				doButton(R.id.toggleButton_echo);
+			}else if(test.equals("image")){
+				doButton(R.id.toggleButton_image);
+			}else if(test.equals("video")){
+				doButton(R.id.toggleButton_video);
+			}
+			
+			if(protocol.equals("r-osgi")) {
+				doButton(R.id.toggleButton_rosgi);
+			}else if(protocol.equals("udp")){
+				doButton(R.id.toggleButton_udp);
+			}else if(protocol.equals("restlet")){
+				doButton(R.id.toggleButton_other);
+			}
+			
+			Button sizeButton = (Button)findViewById(R.id.button_size);
+			for(int i=0;i<tests.size();i++){
+				tests.get(i).changeSize(size);
+			}
+			sizeButton.setText("s="+size);
+			
+			doButton(R.id.button_runtest_1);
+			
+			autoInfo("AutoMeasure: Test done: "+currentTestName);
+			
+			currentTestName=null;
+			
+			accessor.autoMeasureStopMeasure();
+		}
+	}
+	
+	private void script(String... commandline){
+		ProcessBuilder builder = new ProcessBuilder(commandline);
+		try {
+			Process p = builder.start();
+			try {
+				p.waitFor();
+			} catch (InterruptedException e) {}
+			
+		} catch (IOException e) {
+			System.err.println("Could not run commandline");
+		}
+	}
+	
+	private void onAutoConfig(){
+		script("su");
+		script("ifconfig rndis0 192.168.56.60 netmask 255.255.255.0");
+	}
+	
+	private String ping(){
+		ProcessBuilder builder = new ProcessBuilder("ping", "-c", "5", "192.168.56.30");
+		try {
+			Process p = builder.start();
+			try {
+				p.waitFor();
+				BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line = r.readLine();
+				while(line != null) {
+					if(line.contains("packet loss")){
+						return "ping: "+line;
+					}
+					line = r.readLine();
+				}
+			} catch (InterruptedException e) {}
+			
+		} catch (IOException e) {
+			System.err.println("Could not run commandline");
+		}
+		return "ping: no results...";
+	}
 	
 	
 	private void initSizebutton() {
@@ -196,12 +347,35 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		mProgressDialog.show();
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
-				test.runTest(accessor, feedback, measurement,count);
+				try{
+					test.runTest(accessor, feedback, measurement,count);
+					playSoundFinished();
+				} catch (Exception e) {
+					playSoundError();
+					accessor.autoMeasureCrashedMeasure(e.getClass().getName()+": "+e.getMessage());
+					showErrorView(e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		});
 
 		thread.setDaemon(true);
 		thread.start();
+	}
+	
+	private void playSoundFinished(){
+		pool.play(sound_ok, 1, 1, 1, 0, 1);
+	}
+	
+	private void playSoundError(){
+		pool.play(sound_err, 1, 1, 1, 0, 1);
+	}
+	
+	private void showErrorView(String message){
+		TextView runningview = new TextView(this);
+		runningview.setText("An error occured while executing the test: "+message);
+		pushTestView(runningview);
+		
 	}
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
