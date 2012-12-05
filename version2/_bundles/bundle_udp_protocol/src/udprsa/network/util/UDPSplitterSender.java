@@ -98,9 +98,10 @@ public class UDPSplitterSender {
 			}
 			// test
 		//	Random rand = new Random();
-			//if (rand.nextInt(100) > 20) {
+			//if (i!=0) {
 				udpSocket.send(packet);
-			//}else{
+			//}
+			//else{
 			//	System.out.println("lost:" + i);
 			//}
 
@@ -131,7 +132,7 @@ public class UDPSplitterSender {
 						// cleanup
 						toRemove.add(id);
 					}
-					if (System.currentTimeMillis() - sendTimings.get(id) > 1500
+					if (System.currentTimeMillis() - sendTimings.get(id) > 750
 							&& sendBuffer.get(id).get(0) != null) {
 						// still no ack, womething is probably fucked up or the
 						// stream is only one packet big (resend)
@@ -156,7 +157,7 @@ public class UDPSplitterSender {
 				}
 				try {
 					// just sleep so that new ack's could come in
-					Thread.sleep(1500);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 					System.out.println("resend sleep interupt" + e.toString());
 					e.printStackTrace();
