@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 import org.osgi.framework.BundleException;
 
@@ -137,10 +139,22 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				autoInfo("AutoMeasure Starting...");
-				onAutoMeasure();
-				autoWait();
-				autoInfo("AutoMeasure Done...");
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						autoInfo("AutoMeasure Starting...");
+						try{
+							onAutoMeasure();
+						}catch(Exception ex){
+							String toString = ex.getClass().getName()+": "+ex.getMessage();
+							accessor.autoMeasureCrashedMeasure(toString);
+							autoInfo(toString);
+							return;
+						}
+						autoWait();
+						autoInfo("AutoMeasure Done...");
+					}
+				}).start();
 			}
 		});
 		
@@ -148,7 +162,14 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		button.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onAutoConfig();
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						autoInfo("AutoConfig in progress...");
+						onAutoConfig();
+						autoInfo("AutoConfig done...");
+					}
+				}).start();
 			}
 		});
 		
@@ -165,13 +186,18 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 	
 	private void autoWait() {
 		try {
-			Thread.sleep(5000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {}
 	}
 	
-	private void autoInfo(String info) {
-		TextView view = (TextView)findViewById(R.id.auto_info);
-		view.setText(info);
+	private void autoInfo(final String info) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				TextView view = (TextView)findViewById(R.id.auto_info);
+				view.setText(info);
+			}
+		});
 	}
 	
 	private void doButton(int id) {
@@ -188,38 +214,50 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		while(accessor.autoMeasureHasNext()) {
 			accessor.autoMeasureStartMeasure();
 			String[] settings = accessor.autoMeasureGetCurrentSettings().split(" ");
-			String test = settings[0];
-			String protocol = settings[1];
-			int size = Integer.parseInt(settings[2]);
+			final String test = settings[0];
+			final String protocol = settings[1];
+			final int size = Integer.parseInt(settings[2]);
 			String name = settings[3];
 			
 			currentTestName = name;
 			
 			autoInfo("AutoMeasure: Running: "+currentTestName);
 			
-			if(test.equals("echo")) {
-				doButton(R.id.toggleButton_echo);
-			}else if(test.equals("image")){
-				doButton(R.id.toggleButton_image);
-			}else if(test.equals("video")){
-				doButton(R.id.toggleButton_video);
-			}
+			final Semaphore guidone = new Semaphore(0);
 			
-			if(protocol.equals("r-osgi")) {
-				doButton(R.id.toggleButton_rosgi);
-			}else if(protocol.equals("udp")){
-				doButton(R.id.toggleButton_udp);
-			}else if(protocol.equals("restlet")){
-				doButton(R.id.toggleButton_other);
-			}
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					if(test.equals("echo")) {
+						doButton(R.id.toggleButton_echo);
+					}else if(test.equals("image")){
+						doButton(R.id.toggleButton_image);
+					}else if(test.equals("video")){
+						doButton(R.id.toggleButton_video);
+					}
+					
+					if(protocol.equals("r-osgi")) {
+						doButton(R.id.toggleButton_rosgi);
+					}else if(protocol.equals("udp")){
+						doButton(R.id.toggleButton_udp);
+					}else if(protocol.equals("restlet")){
+						doButton(R.id.toggleButton_other);
+					}
 			
-			Button sizeButton = (Button)findViewById(R.id.button_size);
-			for(int i=0;i<tests.size();i++){
-				tests.get(i).changeSize(size);
-			}
-			sizeButton.setText("s="+size);
+					Button sizeButton = (Button)findViewById(R.id.button_size);
+					for(int i=0;i<tests.size();i++){
+						tests.get(i).changeSize(size);
+					}
+					sizeButton.setText("s="+size);
+		
+					guidone.release();
+				}
+			});
+			guidone.acquireUninterruptibly();
 			
-			doButton(R.id.button_runtest_1);
+			// run the test
+			runTest(currenttest, 1, true);
 			
 			autoInfo("AutoMeasure: Test done: "+currentTestName);
 			
@@ -229,22 +267,26 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		}
 	}
 	
-	private void script(String... commandline){
-		ProcessBuilder builder = new ProcessBuilder(commandline);
+	private void onAutoConfig(){
+		ProcessBuilder builder = new ProcessBuilder("su");
 		try {
 			Process p = builder.start();
+			
+			PrintWriter pw = new PrintWriter(p.getOutputStream());
+			
+			try{
+				pw.write("ifconfig rndis0 192.168.56.60 netmask 255.255.255.0\n");
+				pw.write("exit\n");
+			}finally{
+				pw.close();
+			}
+			
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {}
-			
 		} catch (IOException e) {
 			System.err.println("Could not run commandline");
 		}
-	}
-	
-	private void onAutoConfig(){
-		script("su");
-		script("ifconfig rndis0 192.168.56.60 netmask 255.255.255.0");
 	}
 	
 	private String ping(){
@@ -331,20 +373,30 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			e.printStackTrace(System.out);
 		}
 	} 
+    
+    public void runTest(TestInterface test, int count) {
+    	runTest(test, count, false);
+    }
 	
 	/**
 	 * run a test
 	 */
-	public void runTest(final TestInterface test,final int count) {
-		TextView runningview = new TextView(this);
-		runningview.setText("Started running test "+test.getClass().getName()+" "+count+" times...\nPlease wait...");
-		pushTestView(runningview);
+	public void runTest(final TestInterface test,final int count, boolean wait) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				TextView runningview = new TextView(OSGIMainActivity.this);
+				runningview.setText("Started running test "+test.getClass().getName()+" "+count+" times...\nPlease wait...");
+				pushTestView(runningview);
+				
+				mProgressDialog = new ProgressDialog(OSGIMainActivity.this);
+				mProgressDialog.show();
+			}
+		});
 		
 		
 		final FeedbackInterface feedback = this;
 		final MeasurementInterface measurement = new MeasurementTool();
-		mProgressDialog = new ProgressDialog(this);
-		mProgressDialog.show();
 		Thread thread = new Thread(new Runnable() {
 			public void run() {
 				try{
@@ -361,10 +413,16 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 
 		thread.setDaemon(true);
 		thread.start();
+		
+		if(wait) {
+			try {
+				thread.join();
+			} catch (InterruptedException e) {}
+		}
 	}
 	
 	private void playSoundFinished(){
-		pool.play(sound_ok, 1, 1, 1, 0, 1);
+		//pool.play(sound_ok, 1, 1, 1, 0, 1);
 	}
 	
 	private void playSoundError(){
