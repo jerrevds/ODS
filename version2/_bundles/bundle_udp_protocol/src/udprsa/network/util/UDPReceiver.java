@@ -2,9 +2,9 @@ package udprsa.network.util;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import udprsa.ROSGiServiceAdmin;
 import udprsa.network.MixedChannel;
@@ -14,101 +14,188 @@ import udprsa.network.message.RemoteCallUDPRCVMessage;
 public class UDPReceiver {
 
 	private boolean isCleaning;
-	private HashMap<Integer, UDPElement> buffer;
+	private ConcurrentHashMap<Integer, UDPElement> buffer;
 	private GarbageCollector cleanThread;
 	private MixedChannel channel;
-
-
+	private HashSet<Integer> resendCheck = new HashSet<Integer>();
+	public boolean resend = true;
 
 	public UDPReceiver(MixedChannel channel) {
-		isCleaning=false;
-		buffer = new HashMap<Integer, UDPElement>();
+		isCleaning = false;
+		buffer = new ConcurrentHashMap<Integer, UDPElement>();
 		this.channel = channel;
+		resend = channel.isRetransEnabled();
+		if (resend) {
+			ResendChecker resendThread = new ResendChecker();
+			resendThread.start();
+		}
 	}
-	
-	public void received(byte[] array){
+
+	public void close() {
+		isCleaning = false;
+		resend = false;
+	}
+
+	public void received(byte[] array) {
 		ByteBuffer bb = ByteBuffer.wrap(array);
 		int id = bb.getInt();
 		int volgNr = bb.getInt();
-		boolean isLast = array[8]!=0;
+		boolean isLast = array[8] != 0;
 		byte[] receiving = new byte[UDPSplitterSender.SIZE];
 		System.arraycopy(array, 9, receiving, 0, UDPSplitterSender.SIZE);
 		UDPElement element;
-		if(buffer.containsKey(id)){
+		if (buffer.containsKey(id)) {
 			element = buffer.get(id);
-		}else{
+
+		} else {
+			// ask the resend of a -1 packet so the receiver knows we have got
+			// something
+			
 			element = new UDPElement(this);
 		}
+		if(volgNr == 0){
+			RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(
+					ROSGiMessage.NOT_UDP_RECEIVED);
+			receiveMessage.setId(id);
+			receiveMessage.setVolgnr(-1);
+			try {
+				channel.sendMessage(receiveMessage);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		resendCheck.add(id);
 		element.addPacket(volgNr, receiving, isLast);
 		buffer.put(id, element);
-		if(!isCleaning){
+		if (!isCleaning) {
 			cleanThread = new GarbageCollector();
 			cleanThread.start();
-			isCleaning=true;
-			
+			isCleaning = true;
+
 		}
-		RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(ROSGiMessage.UDP_RECEIVED);
-		receiveMessage.setId(id);
-		receiveMessage.setVolgnr(volgNr);
-		try {
-			channel.sendMessage(receiveMessage);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
 	}
-	
+
 	/**
 	 * push byte array of object as ready to channel for proxy handling
+	 * 
 	 * @param asArray
 	 */
 	public void pushReady(byte[] asArray) {
 		channel.pushReady(asArray);
 	}
+
 	/**
 	 * clear
 	 */
-	public void clear(){
+	public void clear() {
 		buffer.clear();
 	}
 
-	
 	/**
-	 * GC thread to clean buffer if packets are located there to loong. buffer time is the same as the 2* time on which a timeout at sender side would occure
+	 * GC thread to clean buffer if packets are located there to loong. buffer
+	 * time is the same as the 2* time on which a timeout at sender side would
+	 * occure
+	 * 
 	 * @author jerrevds
-	 *
+	 * 
 	 */
-	class GarbageCollector extends Thread{
-		
+	class GarbageCollector extends Thread {
+
 		@Override
 		public void run() {
-			while(buffer.size() !=0 && isCleaning){
+			while (buffer.size() != 0 && isCleaning) {
 				try {
 					Thread.sleep(ROSGiServiceAdmin.TIMEOUT + 1000);
 				} catch (InterruptedException e) {
-					
+
 					e.printStackTrace();
 				}
-				//clone to avoid fucking up the keyset in loop
+				// clone to avoid fucking up the keyset in loop
 				Set<Integer> keys = new HashSet<Integer>(buffer.keySet());
-				for(Integer id : keys){
+				for (Integer id : keys) {
 					UDPElement element = buffer.get(id);
-					if(element.isOld() && ! element.isPushing()){
-						//too old, remove, sender is closed already by timeout
+					if (element.isOld() && !element.isPushing()) {
+						// too old, remove, sender is closed already by timeout
 						buffer.remove(id);
-					}else if(element.isPushed()){
-						//is psuhed, we don't need to keep it here
+					} else if (element.isPushed()) {
+						// is psuhed, we don't need to keep it here
 						buffer.remove(id);
-					}else{
-						//passed first run, set as old
+					} else {
+						// passed first run, set as old
 						element.setOld(true);
 					}
 				}
-				if(!cleanThread.equals(this)){
-					//ow god some weird shit has happened, stop this and let the next thread take care of all work.
+				if (!cleanThread.equals(this)) {
+					// ow god some weird shit has happened, stop this and let
+					// the next thread take care of all work.
 					isCleaning = false;
 				}
 			}
 			isCleaning = false;
+		}
+	}
+
+	class ResendChecker extends Thread {
+
+		@Override
+		public void run() {
+			while (resend) {
+				// first check elements where the last element is present but
+				// which are not complete and add them to the list
+				for (Integer id : buffer.keySet()) {
+					if (buffer.get(id).getRSize() < buffer.get(id).getSize()
+							|| buffer.get(id).getSize() == 0) {
+						resendCheck.add(id);
+					}
+				}
+				// check whcih volgnr are missing
+				for (Integer id : resendCheck) {
+					UDPElement element = buffer.get(id);
+					if (element != null) {
+						int size = Math.max(element.getRSize(),
+								element.getSize());
+						for (int i = 0; i < size; i++) {
+							// we missed something
+							if (!element.isVolgPresent(i)) {
+								RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(
+										ROSGiMessage.NOT_UDP_RECEIVED);
+								receiveMessage.setId(id);
+								receiveMessage.setVolgnr(i);
+								try {
+									channel.sendMessage(receiveMessage);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+						// ok, in worst case we've missed some elements at the
+						// end,
+						// ask to resend elements and this for elements up to 5%
+						// in
+						// the future
+						if (element.getRSize() == 0) {
+							for (int i = size; i < size + (size * (5 / 100)); i++) {
+								RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(
+										ROSGiMessage.NOT_UDP_RECEIVED);
+								receiveMessage.setId(id);
+								receiveMessage.setVolgnr(i);
+								try {
+									channel.sendMessage(receiveMessage);
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				}
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

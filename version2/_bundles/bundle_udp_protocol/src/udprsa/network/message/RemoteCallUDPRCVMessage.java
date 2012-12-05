@@ -16,7 +16,7 @@ public class RemoteCallUDPRCVMessage extends ROSGiMessage {
 	}
 
 	public RemoteCallUDPRCVMessage(ObjectInputStream input) {
-		super(UDP_RECEIVED);
+		super(NOT_UDP_RECEIVED);
 		try {
 			id = input.readInt();
 			volgnr = input.readInt();
@@ -40,7 +40,7 @@ public class RemoteCallUDPRCVMessage extends ROSGiMessage {
 	public void setId(int id) {
 		this.id = id;
 	}
-
+//-1 is a ack for the id, else this is what we want to resend
 	public int getVolgnr() {
 		return volgnr;
 	}

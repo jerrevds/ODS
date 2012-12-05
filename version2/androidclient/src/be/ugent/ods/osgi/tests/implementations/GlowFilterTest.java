@@ -44,7 +44,7 @@ public class GlowFilterTest extends AbstractTest {
 		if (size == 0) {
 			mOriginalImageView.setImageResource(R.drawable.i23kb);
 		} else if (size == 1) {
-			mOriginalImageView.setImageResource(R.drawable.i420kb);
+			mOriginalImageView.setImageResource(R.drawable.i200kb);
 		} else {
 			mOriginalImageView.setImageResource(R.drawable.i1mb);
 		}

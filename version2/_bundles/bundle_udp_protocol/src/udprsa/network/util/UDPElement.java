@@ -43,7 +43,7 @@ public class UDPElement {
 		}
 		packets.put(i, data);
 		old = false;
-		System.out.println("check for psuh=" + count + " is  size?" + packets.size() );
+		System.out.println("check for push=" + count + " is  size?" + packets.size() );
 		
 		if(count !=0 && packets.size() == count && !isPushed){
 			//last packet is received and we havn't pushed our object yet, push it (ispushed needed because of multithreading and resending where double resends could occure
@@ -51,6 +51,18 @@ public class UDPElement {
 			receiver.pushReady(getAsArray());
 			isPushed=true;
 		}
+	}
+	
+	public int getSize(){
+		return count;
+	}
+	
+	public int getRSize(){
+		return packets.size();
+	}
+	
+	public boolean isVolgPresent(int volg){
+		return packets.containsKey(volg);
 	}
 
 	/**

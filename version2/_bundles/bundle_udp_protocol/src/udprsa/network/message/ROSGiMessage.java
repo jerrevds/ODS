@@ -12,7 +12,7 @@ public abstract class ROSGiMessage {
 	
 	public static final short REMOTE_CALL = 5;
 	public static final short REMOTE_CALL_RESULT = 6;
-	public static final short UDP_RECEIVED = 7;
+	public static final short NOT_UDP_RECEIVED = 7;
 	
 	private short funcID;
 	protected int xid;
@@ -59,7 +59,7 @@ public abstract class ROSGiMessage {
 		case REMOTE_CALL_RESULT:
 			msg = new RemoteCallResultMessage(input);
 			break;
-		case UDP_RECEIVED:
+		case NOT_UDP_RECEIVED:
 			msg = new RemoteCallUDPRCVMessage(input);
 			break;
 		default:
