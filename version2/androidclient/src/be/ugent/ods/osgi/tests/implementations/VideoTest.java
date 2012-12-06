@@ -35,12 +35,14 @@ public class VideoTest extends AbstractTest {
 	int width = 0;
 	int height = 0;
 	
+	int useVideoFrames=2;
+	int maxUseVideoFrames=9;
+	
 	private ArrayList<ArrayList<Bitmap>> resultmacroblocks;// = new ArrayList<ArrayList<Bitmap>>();
 	private ArrayList<Bitmap> frames = new ArrayList<Bitmap>();
 	
 	private ArrayList<ArrayList<byte[]>> bytesMacroblocks; // = new ArrayList<ArrayList<byte[]>>();
 	private ArrayList<ArrayList<byte[]>> result = null;
-	private int size;
 	
 	@SuppressLint("NewApi")
 	@Override
@@ -54,7 +56,10 @@ public class VideoTest extends AbstractTest {
     	    	ArrayList<Bitmap> rev = new ArrayList<Bitmap>();
     	    	MediaPlayer mp = MediaPlayer.create(feedback.getActivity(),videoUri);
     	    	int millis = mp.getDuration();
+    	    	int framecountUsed = 0;
     	    	for(int i=0;i<millis;i+=100){
+    	    		if(framecountUsed>maxUseVideoFrames) { break; }
+    	    		framecountUsed++;
     	    		boolean eralin = false;
     	    		Bitmap bm = retriever.getFrameAtTime(i*10000);
     	    		if(bm != null && !rev.contains(bm)){
@@ -120,15 +125,18 @@ public class VideoTest extends AbstractTest {
 	@Override
 	public void test() {
 		
-		for(int frame = 0; frame<ar.size() && frame <= size;frame++){
+		service.clear();
+		
+		for(int frame = 0; frame<ar.size() && frame<useVideoFrames;frame++){
     		for(int lengte = 0; lengte < bytesMacroblocks.get(frame).size(); lengte++){
-    			//Log.d("HELP","iets doorsturen" + lengte);
+    			Log.d("HELP","iets doorsturen" + lengte);
     			byte[] n = bytesMacroblocks.get(frame).get(lengte);
     			service.doSomething(width,height,n,frame);
     		}
     		Log.d("HELP","next frame: " + frame);
     	}
-		result = service.getResult();		
+		result = service.getResult();
+		System.out.println("Received "+result.size()+" frames from the server. Sended "+Math.min(ar.size(), useVideoFrames));
 	}
 
 	@Override
@@ -154,18 +162,19 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public void postRun() {
-		frames.clear();
 		resultmacroblocks = new ArrayList<ArrayList<Bitmap>>();
-		for(int frame = 0; frame<ar.size() && frame <= size;frame++){
+		for(int frame = 0; frame<result.size();frame++){
     		resultmacroblocks.add(new ArrayList<Bitmap>());
-    		for(int lengte = 0; lengte < result.get(frame).size() ; lengte++){
+    		for(int lengte = 0; lengte < result.get(frame).size(); lengte++){
     			byte[] r = result.get(frame).get(lengte);
             	Bitmap nieuw = BitmapFactory.decodeByteArray(r, 0, r.length);
             	resultmacroblocks.get(frame).add(nieuw); 
     		}
     		
     	}
-		for(int frame = 0; frame<resultmacroblocks.size() && frame <= size;frame++){
+		
+		frames = new ArrayList<Bitmap>();
+		for(int frame = 0; frame<resultmacroblocks.size();frame++){
     		ArrayList<Bitmap> bmFrame = resultmacroblocks.get(frame);
         	Bitmap bmnieuw = Bitmap.createBitmap(width,height,bmFrame.get(0).getConfig());
     		Canvas canvas = new Canvas(bmnieuw);
@@ -215,14 +224,19 @@ public class VideoTest extends AbstractTest {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return "video";
 	}
 
 	@Override
 	public void changeSize(int size) {
-		this.size=size;
+		//change for size, just set on null so new record can be made
+		//videoUri = null;
+		switch(size) {
+		case 0: useVideoFrames=2; break;
+		case 1: useVideoFrames=5; break;
+		case 2: useVideoFrames=9; break;
 		
+		}
 	}
 
 }

@@ -561,7 +561,7 @@ public class ROSGiServiceAdmin implements RemoteServiceAdmin, MessageReceiver, M
 	 */
 	static int xIdCount =0;
 	static int MAX_THREADS = 2;
-	public static int TIMEOUT = 20000;
+	public static int TIMEOUT = 300000;
 
 	protected final Map callbacks = new HashMap(0);
 	

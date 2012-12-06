@@ -108,6 +108,65 @@ public class ModuleAccessor {
 		}
 	}
 	
+	public boolean autoMeasureHasNext() {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		boolean value = server.autoMeasureHasNext();
+		
+		setUseRSAModule(oldRSAindex);
+
+		return value;
+	}
+	
+	public void autoMeasureStartMeasure() {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		server.autoMeasureStartMeasure();
+		
+		try{
+		Thread.sleep(5000);
+		}catch(InterruptedException ie){}
+		
+		setUseRSAModule(oldRSAindex);
+	}
+	
+	public String autoMeasureGetCurrentSettings() {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		String value = server.autoMeasureGetCurrentSettings();
+		
+		setUseRSAModule(oldRSAindex);
+		
+		return value;
+	}
+	
+	public void autoMeasureStopMeasure() {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		server.autoMeasureStopMeasure();
+		
+		setUseRSAModule(oldRSAindex);
+	}
+	
+	public void autoMeasureCrashedMeasure(String error) {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		server.autoMeasureCrashedMeasure(error);
+		
+		setUseRSAModule(oldRSAindex);
+	}
+	
+	
 	public EndpointDescription getCurrentEndpointDescriptionFor(Class<?> c){
 		Map<String, String> rosgitim_ids = new HashMap<String, String>();
 		rosgitim_ids.put(EchoService.class.getName(), "44");
@@ -121,8 +180,8 @@ public class ModuleAccessor {
 		
 		//r-osgi-tim server
 		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("endpoint.id", "r-osgi://10.0.2.2:9278#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
-		//properties.put("endpoint.id", "r-osgi://192.168.0.121:9278#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+		properties.put("endpoint.id", "r-osgi://192.168.56.30:9278#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+		//properties.put("endpoint.id", "r-osgi://192.168.0.128:9278#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
 		properties.put("service.imported.configs", "r-osgi");
 		properties.put("objectClass", new String[]{c.getName()});
 		EndpointDescription endpoint = new EndpointDescription(properties);
@@ -130,8 +189,8 @@ public class ModuleAccessor {
 		
 		//r-osgi-tim-udp server
 		properties = new HashMap<String, Object>();
-		properties.put("endpoint.id", "r-osgi://10.0.2.2:9279#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
-		//properties.put("endpoint.id", "r-osgi://192.168.0.121:9279#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+		properties.put("endpoint.id", "r-osgi://192.168.56.30:9279#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
+	//	properties.put("endpoint.id", "r-osgi://192.168.0.128:9279#"+rosgitim_ids.get(c.getName()));// TODO: put IP in property file or something like that (or in gui)
 		properties.put("service.imported.configs", "r-osgi-udp");
 		properties.put("objectClass", new String[]{c.getName()});
 		endpoint = new EndpointDescription(properties);
@@ -139,8 +198,8 @@ public class ModuleAccessor {
 		
 		// other...
 		properties = new HashMap<String, Object>();
-		properties.put("endpoint.id", "http://10.0.2.2:8080/" + rosgitim_ids.get(c.getName()) + "/");
-		//properties.put("endpoint.id", "http://192.168.0.121:8080/" + rosgitim_ids.get(c.getName()) + "/");
+		properties.put("endpoint.id", "http://192.168.56.30:8080/" + rosgitim_ids.get(c.getName()) + "/");
+		//properties.put("endpoint.id", "http://192.168.2.5:8080/" + rosgitim_ids.get(c.getName()) + "/");
 		properties.put("service.imported.configs", "r-osgi-other");
 		properties.put("objectClass", new String[]{c.getName()});
 		properties.put("interface", c);

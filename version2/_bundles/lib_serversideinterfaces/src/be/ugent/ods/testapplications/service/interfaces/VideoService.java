@@ -6,6 +6,8 @@ import udprsa.annotation.UDP;
 
 public interface VideoService{
 	
+	public void clear();
+	
 	@UDP
 	public void doSomething(int width, int height, byte[] data, int frame);
 	

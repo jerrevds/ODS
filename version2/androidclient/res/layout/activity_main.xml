@@ -133,6 +133,59 @@
                 android:layout_height="wrap_content"
                 android:text="@string/run20" />
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/auto_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AutoRun Info"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="4pt" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/button_auto_config"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AutoConfig" />
+
+            <Button
+                android:id="@+id/button_auto_ping"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AutoPing" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:id="@+id/spacer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20px"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <Button
+                android:id="@+id/button_auto_run"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AutoRun" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
