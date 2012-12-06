@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
 import be.ugent.ods.testapplications.service.interfaces.EchoService;
@@ -151,6 +152,21 @@ public class EchoServiceImpl implements EchoService{
 		script("./ServerStopMeasure.sh");
 		script("./ServerAddLog.sh", "[ERROR] MEASURE NOT FINISHED: "+currentMeasureFullName);
 		running = false;
+	}
+	
+	public void autoMeasureDumpData(String prefix, String suffix, String data) {
+		File f = new File("ClientDump/"+prefix+currentMeasureFullName+suffix);
+		
+		try {
+			PrintWriter w = new PrintWriter(f);
+			
+			w.write(data);
+			
+			w.close();
+		} catch (Exception e) {
+			error(e);
+		}
+		
 	}
 
 }

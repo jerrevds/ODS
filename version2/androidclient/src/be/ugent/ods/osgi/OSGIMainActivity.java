@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -265,11 +266,42 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			// run the test
 			runTest(currenttest, 1, true);
 			
-			autoInfo("AutoMeasure: Test done: "+currentTestName);
-			
 			currentTestName=null;
 			
 			accessor.autoMeasureStopMeasure();
+			
+			autoWait();
+			
+			autoInfo("AutoMeasure: Dumping logcat... "+currentTestName);
+			
+			//
+			// Logcat...
+			//
+			final Semaphore dumpdone = new Semaphore(0);
+			
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					CheckBox logcatbox = (CheckBox) findViewById(R.id.logcatbox);
+					if(logcatbox.isChecked()) {
+						new Thread(new Runnable() {
+							@Override
+							public void run() {
+								String logcat = getLogcat();
+								accessor.autoMeasureDumpData("logcat_", ".txt", logcat);
+								
+								dumpdone.release();
+							}
+						}).start();
+					}else{
+						dumpdone.release(2);
+					}
+				}
+			});
+			
+			dumpdone.acquireUninterruptibly();
+			
+			autoInfo("AutoMeasure: Test done: "+currentTestName+(dumpdone.availablePermits()==0?"":" (logcat exported)"));
 		}
 	}
 	
@@ -293,6 +325,31 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 		} catch (IOException e) {
 			System.err.println("Could not run commandline");
 		}
+	}
+	
+	private String getLogcat() {
+		ProcessBuilder builder = new ProcessBuilder("logcat");
+		try {
+			Process p = builder.start();
+			
+			p.getOutputStream().close();
+			
+			BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			
+			
+			String total = "";
+			
+			String line = r.readLine();
+			while(line!=null) {
+				total = total + "\n" + line;
+				line = r.readLine();
+			}
+			
+			return total;
+		} catch (IOException e) {
+			System.err.println("Could not run commandline");
+		}
+		return null;
 	}
 	
 	private String ping(){

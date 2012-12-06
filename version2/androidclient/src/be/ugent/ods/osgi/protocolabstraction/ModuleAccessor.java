@@ -166,6 +166,16 @@ public class ModuleAccessor {
 		setUseRSAModule(oldRSAindex);
 	}
 	
+	public void autoMeasureDumpData(String prefix, String suffix, String data) {
+		int oldRSAindex = currentrsaindex;
+		setUseRSAModule(TestApplicationProtocolList.PROTOCOL_ROSGI_TIM);
+		
+		EchoService server = getModule(EchoService.class);
+		server.autoMeasureDumpData(prefix, suffix, data);
+		
+		setUseRSAModule(oldRSAindex);
+	}
+	
 	
 	public EndpointDescription getCurrentEndpointDescriptionFor(Class<?> c){
 		Map<String, String> rosgitim_ids = new HashMap<String, String>();
