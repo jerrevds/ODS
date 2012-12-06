@@ -1,6 +1,7 @@
 package be.ugent.ods.osgi.tests.interfaces;
 
 import android.content.Intent;
+import android.util.Log;
 import be.ugent.ods.osgi.protocolabstraction.ModuleAccessor;
 import be.ugent.ods.osgi.tests.measure.MeasurementInterface;
 
@@ -15,6 +16,7 @@ public abstract class AbstractTest implements TestInterface {
 		measurements.startMeasuring(iterations, feedback.getActivity(), getName()+accessor.getCurrentRsaIndex());
 		for(int i = 0;i<iterations;i++){
 			test();
+			Log.d("ODS", "one test iter finish");
 		}
 		measurements.stopMeasuring();
 		postRun();
