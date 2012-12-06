@@ -235,14 +235,20 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 						doButton(R.id.toggleButton_image);
 					}else if(test.equals("video")){
 						doButton(R.id.toggleButton_video);
+					}else{
+						throw new RuntimeException("UNKNOWN TEST: "+test);
 					}
 					
-					if(protocol.equals("r-osgi")) {
+					if(protocol.equals("local")) {
+						doButton(R.id.toggleButton_local);
+					}else if(protocol.equals("r-osgi")) {
 						doButton(R.id.toggleButton_rosgi);
 					}else if(protocol.equals("udp")){
 						doButton(R.id.toggleButton_udp);
 					}else if(protocol.equals("restlet")){
 						doButton(R.id.toggleButton_other);
+					}else{
+						throw new RuntimeException("UNKNOWN PROTOCOL: "+protocol);
 					}
 			
 					Button sizeButton = (Button)findViewById(R.id.button_size);
