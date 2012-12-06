@@ -62,6 +62,7 @@ public class UDPReceiver {
 				channel.sendMessage(receiveMessage);
 			} catch (IOException e) {
 				e.printStackTrace();
+				throw new RuntimeException(e.toString());
 			}
 		}
 		resendCheck.add(id);
@@ -141,6 +142,7 @@ public class UDPReceiver {
 		@Override
 		public void run() {
 			while (resend) {
+				//System.out.println("resend check");
 				// first check elements where the last element is present but
 				// which are not complete and add them to the list
 				for (Integer id : buffer.keySet()) {
@@ -150,7 +152,10 @@ public class UDPReceiver {
 					}
 				}
 				// check whcih volgnr are missing
-				for (Integer id : resendCheck) {
+				HashSet<Integer> cloned = (HashSet<Integer>) resendCheck.clone();
+				resendCheck.clear();
+				for (Integer id : cloned) {
+					System.out.println("resend check for id " + id);
 					UDPElement element = buffer.get(id);
 					if (element != null) {
 						int size = Math.max(element.getRSize(),
@@ -158,6 +163,7 @@ public class UDPReceiver {
 						for (int i = 0; i < size; i++) {
 							// we missed something
 							if (!element.isVolgPresent(i)) {
+								System.out.println("ask resend for " + id + " with volg " + i);
 								RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(
 										ROSGiMessage.NOT_UDP_RECEIVED);
 								receiveMessage.setId(id);
@@ -184,11 +190,13 @@ public class UDPReceiver {
 									channel.sendMessage(receiveMessage);
 								} catch (IOException e) {
 									e.printStackTrace();
+									throw new RuntimeException(e.toString());
 								}
 							}
 						}
 					}
 				}
+
 				try {
 					Thread.sleep(250);
 				} catch (InterruptedException e) {

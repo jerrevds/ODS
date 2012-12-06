@@ -98,12 +98,13 @@ public class UDPSplitterSender {
 			}
 			// test
 		//	Random rand = new Random();
-			//if (i!=0) {
+			//if (rand.nextInt(100) > 30) {
 				udpSocket.send(packet);
 			//}
 			//else{
-			//	System.out.println("lost:" + i);
+		//		System.out.println("lost:" + i);
 			//}
+				
 
 		}
 
@@ -144,8 +145,8 @@ public class UDPSplitterSender {
 									.get(0));
 
 						} catch (IOException e) {
-
 							e.printStackTrace();
+							throw new RuntimeException(e.toString());
 						}
 					}
 				}
