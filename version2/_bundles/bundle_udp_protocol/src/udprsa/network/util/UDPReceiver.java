@@ -180,8 +180,10 @@ public class UDPReceiver {
 						// ask to resend elements and this for elements up to 5%
 						// in
 						// the future
-						if (element.getRSize() == 0) {
-							for (int i = size; i < size + (size * (5 / 100)); i++) {
+						if (element.getSize() == 0) {
+							System.out.println("test resend case 0 with size" + size);
+							for (int i = size-1; i < size + (size * ((double)5 / 100)); i++) {
+								System.out.println("ask retransmit for" + id + "  and volg" + i);
 								RemoteCallUDPRCVMessage receiveMessage = new RemoteCallUDPRCVMessage(
 										ROSGiMessage.NOT_UDP_RECEIVED);
 								receiveMessage.setId(id);

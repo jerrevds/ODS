@@ -266,8 +266,6 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			// run the test
 			runTest(currenttest, 1, true);
 			
-			currentTestName=null;
-			
 			accessor.autoMeasureStopMeasure();
 			
 			autoWait();
@@ -302,6 +300,8 @@ public class OSGIMainActivity extends Activity implements FeedbackInterface {
 			dumpdone.acquireUninterruptibly();
 			
 			autoInfo("AutoMeasure: Test done: "+currentTestName+(dumpdone.availablePermits()==0?"":" (logcat exported)"));
+			
+			currentTestName=null;
 		}
 	}
 	
