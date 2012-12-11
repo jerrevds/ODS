@@ -10,8 +10,8 @@ for /r %%i in (*) do (
  echo.
  echo.[[[ FILE %%i ]]]
  echo.
- dx --dex --core-library --output="%PWD%\classes.dex" "%%i"
+  dx --dex --core-library --output="%PWD%\..\dex\classes.dex" "%%i"
  @ECHO OFF
- aapt add "%%i" "%PWD%\classes.dex"
- del "%PWD%\classes.dex"
+ aapt add "%%i" "classes.dex"
+ del "%PWD%\..\dex\classes.dex"
 )
