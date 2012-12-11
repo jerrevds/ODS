@@ -15,4 +15,6 @@ public interface EchoService {
 	public void autoMeasureStopMeasure();
 	
 	public void autoMeasureCrashedMeasure(String error);
+	
+	public void autoMeasureDumpData(String prefix, String suffix, String data);
 }

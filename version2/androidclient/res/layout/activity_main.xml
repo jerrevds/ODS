@@ -158,23 +158,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="AutoConfig" />
-
+
             <Button
                 android:id="@+id/button_auto_ping"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AutoPing" />
-
-            <Space
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
-
+                android:text="AutoCheck" />
+
             <TextView
                 android:id="@+id/spacer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20px"
+                android:layout_marginLeft="10dp"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
             <Button
@@ -183,6 +179,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="AutoRun" />
+
+            <TextView
+                android:id="@+id/spacer2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+
+            <CheckBox
+                android:id="@+id/logcatbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
 
